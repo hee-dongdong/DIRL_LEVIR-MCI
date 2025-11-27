@@ -1,0 +1,1054 @@
+Before changing directory:
+/data/heedong/DIRL_Capstone/server-scripts/251031
+After changing directory:
+/data/heedong/DIRL_Capstone
+/data/heedong/anaconda3/bin/python
+augi3
+Loading checkpoint from ./experiments/DIRL+CCR_levir/snapshots/DIRL+CCR_levir_checkpoint_6000.pt
+DIRL(
+  (img): Sequential(
+    (0): Conv2d(1024, 512, kernel_size=(1, 1), stride=(1, 1))
+  )
+  (w_embedding): Embedding(14, 256)
+  (h_embedding): Embedding(14, 256)
+  (mlp): Sequential(
+    (0): Linear(in_features=512, out_features=2048, bias=True)
+    (1): ReLU()
+    (2): Dropout(p=0.1, inplace=False)
+    (3): Linear(in_features=2048, out_features=512, bias=True)
+  )
+  (transformer): ModuleList(
+    (0): CrossTransformer(
+      (attention): MultiheadAttention(
+        (out_proj): _LinearWithBias(in_features=512, out_features=512, bias=True)
+      )
+      (norm1): LayerNorm((512,), eps=1e-05, elementwise_affine=True)
+      (dropout1): Dropout(p=0.1, inplace=False)
+    )
+    (1): CrossTransformer(
+      (attention): MultiheadAttention(
+        (out_proj): _LinearWithBias(in_features=512, out_features=512, bias=True)
+      )
+      (norm1): LayerNorm((512,), eps=1e-05, elementwise_affine=True)
+      (dropout1): Dropout(p=0.1, inplace=False)
+    )
+  )
+)
+CCR(
+  (core): Core(
+    (embed): Embedding(860, 300, padding_idx=0)
+    (fc): Sequential(
+      (0): Linear(in_features=300, out_features=512, bias=True)
+      (1): LayerNorm((512,), eps=1e-05, elementwise_affine=True)
+      (2): Dropout(p=0.1, inplace=False)
+    )
+    (embed_fc): Sequential(
+      (0): Linear(in_features=1024, out_features=512, bias=True)
+      (1): LayerNorm((512,), eps=1e-05, elementwise_affine=True)
+      (2): Dropout(p=0.1, inplace=False)
+      (3): ReLU()
+    )
+    (position_enc): PositionEncoding()
+    (aux_decoder): Sequential(
+      (0): Conv2d(512, 512, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+      (1): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (2): ReLU(inplace=True)
+      (3): Conv2d(512, 256, kernel_size=(1, 1), stride=(1, 1))
+      (4): ConvTranspose2d(256, 3, kernel_size=(18, 18), stride=(18, 18), padding=(1, 1), output_padding=(6, 6))
+    )
+    (aux_loss_fn): L1Loss()
+    (layer): ModuleList(
+      (0): CrossTransformer(
+        (self_att): MultiheadAttention(
+          (out_proj): _LinearWithBias(in_features=512, out_features=512, bias=True)
+        )
+        (cross_att): MultiheadAttention(
+          (out_proj): _LinearWithBias(in_features=512, out_features=512, bias=True)
+        )
+        (norm1): LayerNorm((512,), eps=1e-05, elementwise_affine=True)
+        (norm2): LayerNorm((512,), eps=1e-05, elementwise_affine=True)
+        (norm3): LayerNorm((512,), eps=1e-05, elementwise_affine=True)
+        (dropout1): Dropout(p=0.1, inplace=False)
+        (dropout2): Dropout(p=0.1, inplace=False)
+        (dropout3): Dropout(p=0.1, inplace=False)
+        (activation): ReLU()
+        (linear1): Linear(in_features=512, out_features=2048, bias=True)
+        (linear2): Linear(in_features=2048, out_features=512, bias=True)
+        (dropout): Dropout(p=0.1, inplace=False)
+      )
+      (1): CrossTransformer(
+        (self_att): MultiheadAttention(
+          (out_proj): _LinearWithBias(in_features=512, out_features=512, bias=True)
+        )
+        (cross_att): MultiheadAttention(
+          (out_proj): _LinearWithBias(in_features=512, out_features=512, bias=True)
+        )
+        (norm1): LayerNorm((512,), eps=1e-05, elementwise_affine=True)
+        (norm2): LayerNorm((512,), eps=1e-05, elementwise_affine=True)
+        (norm3): LayerNorm((512,), eps=1e-05, elementwise_affine=True)
+        (dropout1): Dropout(p=0.1, inplace=False)
+        (dropout2): Dropout(p=0.1, inplace=False)
+        (dropout3): Dropout(p=0.1, inplace=False)
+        (activation): ReLU()
+        (linear1): Linear(in_features=512, out_features=2048, bias=True)
+        (linear2): Linear(in_features=2048, out_features=512, bias=True)
+        (dropout): Dropout(p=0.1, inplace=False)
+      )
+    )
+  )
+  (logit): Linear(in_features=512, out_features=860, bias=True)
+  (loss_func): CrossEntropyLoss()
+)
+AddSpatialInfo()
+Speaker Dataset loading vocab json file:  /data/heedong/DIRL_Capstone/data_loader/LEVIR-MCI-dataset/images_flattened/annotations/transformer_vocab.json
+vocab size is  860
+Dataset size for train: 6815
+Max sequence length is 42
+Speaker Dataset loading vocab json file:  /data/heedong/DIRL_Capstone/data_loader/LEVIR-MCI-dataset/images_flattened/annotations/transformer_vocab.json
+vocab size is  860
+Dataset size for test: 1929
+Max sequence length is 42
+Test took 95.0886 seconds
+SPICE evaluation took: 2.510 s
+loading annotations into memory...
+Done (t=0.06s)
+creating index...
+index created!
+Loading and preparing results...
+DONE (t=0.01s)
+creating index...
+index created!
+tokenization...
+setting up scorers...
+computing Bleu score...
+{'testlen': 15332, 'reflen': 15209, 'guess': [15332, 13403, 11474, 9545], 'correct': [12710, 8628, 5829, 3925]}
+ratio: 1.0080873167202966
+Bleu_1: 0.829
+Bleu_2: 0.731
+Bleu_3: 0.647
+Bleu_4: 0.578
+computing METEOR score...
+METEOR: 0.392
+computing Rouge score...
+ROUGE_L: 0.737
+computing CIDEr score...
+CIDEr: 1.326
+computing SPICE score...
+SPICE: 0.311
+Loading checkpoint from ./experiments/DIRL+CCR_levir/snapshots/DIRL+CCR_levir_checkpoint_7000.pt
+DIRL(
+  (img): Sequential(
+    (0): Conv2d(1024, 512, kernel_size=(1, 1), stride=(1, 1))
+  )
+  (w_embedding): Embedding(14, 256)
+  (h_embedding): Embedding(14, 256)
+  (mlp): Sequential(
+    (0): Linear(in_features=512, out_features=2048, bias=True)
+    (1): ReLU()
+    (2): Dropout(p=0.1, inplace=False)
+    (3): Linear(in_features=2048, out_features=512, bias=True)
+  )
+  (transformer): ModuleList(
+    (0): CrossTransformer(
+      (attention): MultiheadAttention(
+        (out_proj): _LinearWithBias(in_features=512, out_features=512, bias=True)
+      )
+      (norm1): LayerNorm((512,), eps=1e-05, elementwise_affine=True)
+      (dropout1): Dropout(p=0.1, inplace=False)
+    )
+    (1): CrossTransformer(
+      (attention): MultiheadAttention(
+        (out_proj): _LinearWithBias(in_features=512, out_features=512, bias=True)
+      )
+      (norm1): LayerNorm((512,), eps=1e-05, elementwise_affine=True)
+      (dropout1): Dropout(p=0.1, inplace=False)
+    )
+  )
+)
+CCR(
+  (core): Core(
+    (embed): Embedding(860, 300, padding_idx=0)
+    (fc): Sequential(
+      (0): Linear(in_features=300, out_features=512, bias=True)
+      (1): LayerNorm((512,), eps=1e-05, elementwise_affine=True)
+      (2): Dropout(p=0.1, inplace=False)
+    )
+    (embed_fc): Sequential(
+      (0): Linear(in_features=1024, out_features=512, bias=True)
+      (1): LayerNorm((512,), eps=1e-05, elementwise_affine=True)
+      (2): Dropout(p=0.1, inplace=False)
+      (3): ReLU()
+    )
+    (position_enc): PositionEncoding()
+    (aux_decoder): Sequential(
+      (0): Conv2d(512, 512, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+      (1): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (2): ReLU(inplace=True)
+      (3): Conv2d(512, 256, kernel_size=(1, 1), stride=(1, 1))
+      (4): ConvTranspose2d(256, 3, kernel_size=(18, 18), stride=(18, 18), padding=(1, 1), output_padding=(6, 6))
+    )
+    (aux_loss_fn): L1Loss()
+    (layer): ModuleList(
+      (0): CrossTransformer(
+        (self_att): MultiheadAttention(
+          (out_proj): _LinearWithBias(in_features=512, out_features=512, bias=True)
+        )
+        (cross_att): MultiheadAttention(
+          (out_proj): _LinearWithBias(in_features=512, out_features=512, bias=True)
+        )
+        (norm1): LayerNorm((512,), eps=1e-05, elementwise_affine=True)
+        (norm2): LayerNorm((512,), eps=1e-05, elementwise_affine=True)
+        (norm3): LayerNorm((512,), eps=1e-05, elementwise_affine=True)
+        (dropout1): Dropout(p=0.1, inplace=False)
+        (dropout2): Dropout(p=0.1, inplace=False)
+        (dropout3): Dropout(p=0.1, inplace=False)
+        (activation): ReLU()
+        (linear1): Linear(in_features=512, out_features=2048, bias=True)
+        (linear2): Linear(in_features=2048, out_features=512, bias=True)
+        (dropout): Dropout(p=0.1, inplace=False)
+      )
+      (1): CrossTransformer(
+        (self_att): MultiheadAttention(
+          (out_proj): _LinearWithBias(in_features=512, out_features=512, bias=True)
+        )
+        (cross_att): MultiheadAttention(
+          (out_proj): _LinearWithBias(in_features=512, out_features=512, bias=True)
+        )
+        (norm1): LayerNorm((512,), eps=1e-05, elementwise_affine=True)
+        (norm2): LayerNorm((512,), eps=1e-05, elementwise_affine=True)
+        (norm3): LayerNorm((512,), eps=1e-05, elementwise_affine=True)
+        (dropout1): Dropout(p=0.1, inplace=False)
+        (dropout2): Dropout(p=0.1, inplace=False)
+        (dropout3): Dropout(p=0.1, inplace=False)
+        (activation): ReLU()
+        (linear1): Linear(in_features=512, out_features=2048, bias=True)
+        (linear2): Linear(in_features=2048, out_features=512, bias=True)
+        (dropout): Dropout(p=0.1, inplace=False)
+      )
+    )
+  )
+  (logit): Linear(in_features=512, out_features=860, bias=True)
+  (loss_func): CrossEntropyLoss()
+)
+AddSpatialInfo()
+Speaker Dataset loading vocab json file:  /data/heedong/DIRL_Capstone/data_loader/LEVIR-MCI-dataset/images_flattened/annotations/transformer_vocab.json
+vocab size is  860
+Dataset size for train: 6815
+Max sequence length is 42
+Speaker Dataset loading vocab json file:  /data/heedong/DIRL_Capstone/data_loader/LEVIR-MCI-dataset/images_flattened/annotations/transformer_vocab.json
+vocab size is  860
+Dataset size for test: 1929
+Max sequence length is 42
+Test took 95.4542 seconds
+SPICE evaluation took: 2.796 s
+loading annotations into memory...
+Done (t=0.05s)
+creating index...
+index created!
+Loading and preparing results...
+DONE (t=0.01s)
+creating index...
+index created!
+tokenization...
+setting up scorers...
+computing Bleu score...
+{'testlen': 15334, 'reflen': 15211, 'guess': [15334, 13405, 11476, 9547], 'correct': [12712, 8630, 5831, 3927]}
+ratio: 1.0080862533692059
+Bleu_1: 0.829
+Bleu_2: 0.731
+Bleu_3: 0.647
+Bleu_4: 0.578
+computing METEOR score...
+METEOR: 0.392
+computing Rouge score...
+ROUGE_L: 0.737
+computing CIDEr score...
+CIDEr: 1.326
+computing SPICE score...
+SPICE: 0.311
+Loading checkpoint from ./experiments/DIRL+CCR_levir/snapshots/DIRL+CCR_levir_checkpoint_8000.pt
+DIRL(
+  (img): Sequential(
+    (0): Conv2d(1024, 512, kernel_size=(1, 1), stride=(1, 1))
+  )
+  (w_embedding): Embedding(14, 256)
+  (h_embedding): Embedding(14, 256)
+  (mlp): Sequential(
+    (0): Linear(in_features=512, out_features=2048, bias=True)
+    (1): ReLU()
+    (2): Dropout(p=0.1, inplace=False)
+    (3): Linear(in_features=2048, out_features=512, bias=True)
+  )
+  (transformer): ModuleList(
+    (0): CrossTransformer(
+      (attention): MultiheadAttention(
+        (out_proj): _LinearWithBias(in_features=512, out_features=512, bias=True)
+      )
+      (norm1): LayerNorm((512,), eps=1e-05, elementwise_affine=True)
+      (dropout1): Dropout(p=0.1, inplace=False)
+    )
+    (1): CrossTransformer(
+      (attention): MultiheadAttention(
+        (out_proj): _LinearWithBias(in_features=512, out_features=512, bias=True)
+      )
+      (norm1): LayerNorm((512,), eps=1e-05, elementwise_affine=True)
+      (dropout1): Dropout(p=0.1, inplace=False)
+    )
+  )
+)
+CCR(
+  (core): Core(
+    (embed): Embedding(860, 300, padding_idx=0)
+    (fc): Sequential(
+      (0): Linear(in_features=300, out_features=512, bias=True)
+      (1): LayerNorm((512,), eps=1e-05, elementwise_affine=True)
+      (2): Dropout(p=0.1, inplace=False)
+    )
+    (embed_fc): Sequential(
+      (0): Linear(in_features=1024, out_features=512, bias=True)
+      (1): LayerNorm((512,), eps=1e-05, elementwise_affine=True)
+      (2): Dropout(p=0.1, inplace=False)
+      (3): ReLU()
+    )
+    (position_enc): PositionEncoding()
+    (aux_decoder): Sequential(
+      (0): Conv2d(512, 512, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+      (1): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (2): ReLU(inplace=True)
+      (3): Conv2d(512, 256, kernel_size=(1, 1), stride=(1, 1))
+      (4): ConvTranspose2d(256, 3, kernel_size=(18, 18), stride=(18, 18), padding=(1, 1), output_padding=(6, 6))
+    )
+    (aux_loss_fn): L1Loss()
+    (layer): ModuleList(
+      (0): CrossTransformer(
+        (self_att): MultiheadAttention(
+          (out_proj): _LinearWithBias(in_features=512, out_features=512, bias=True)
+        )
+        (cross_att): MultiheadAttention(
+          (out_proj): _LinearWithBias(in_features=512, out_features=512, bias=True)
+        )
+        (norm1): LayerNorm((512,), eps=1e-05, elementwise_affine=True)
+        (norm2): LayerNorm((512,), eps=1e-05, elementwise_affine=True)
+        (norm3): LayerNorm((512,), eps=1e-05, elementwise_affine=True)
+        (dropout1): Dropout(p=0.1, inplace=False)
+        (dropout2): Dropout(p=0.1, inplace=False)
+        (dropout3): Dropout(p=0.1, inplace=False)
+        (activation): ReLU()
+        (linear1): Linear(in_features=512, out_features=2048, bias=True)
+        (linear2): Linear(in_features=2048, out_features=512, bias=True)
+        (dropout): Dropout(p=0.1, inplace=False)
+      )
+      (1): CrossTransformer(
+        (self_att): MultiheadAttention(
+          (out_proj): _LinearWithBias(in_features=512, out_features=512, bias=True)
+        )
+        (cross_att): MultiheadAttention(
+          (out_proj): _LinearWithBias(in_features=512, out_features=512, bias=True)
+        )
+        (norm1): LayerNorm((512,), eps=1e-05, elementwise_affine=True)
+        (norm2): LayerNorm((512,), eps=1e-05, elementwise_affine=True)
+        (norm3): LayerNorm((512,), eps=1e-05, elementwise_affine=True)
+        (dropout1): Dropout(p=0.1, inplace=False)
+        (dropout2): Dropout(p=0.1, inplace=False)
+        (dropout3): Dropout(p=0.1, inplace=False)
+        (activation): ReLU()
+        (linear1): Linear(in_features=512, out_features=2048, bias=True)
+        (linear2): Linear(in_features=2048, out_features=512, bias=True)
+        (dropout): Dropout(p=0.1, inplace=False)
+      )
+    )
+  )
+  (logit): Linear(in_features=512, out_features=860, bias=True)
+  (loss_func): CrossEntropyLoss()
+)
+AddSpatialInfo()
+Speaker Dataset loading vocab json file:  /data/heedong/DIRL_Capstone/data_loader/LEVIR-MCI-dataset/images_flattened/annotations/transformer_vocab.json
+vocab size is  860
+Dataset size for train: 6815
+Max sequence length is 42
+Speaker Dataset loading vocab json file:  /data/heedong/DIRL_Capstone/data_loader/LEVIR-MCI-dataset/images_flattened/annotations/transformer_vocab.json
+vocab size is  860
+Dataset size for test: 1929
+Max sequence length is 42
+Test took 93.8758 seconds
+SPICE evaluation took: 2.826 s
+loading annotations into memory...
+Done (t=0.06s)
+creating index...
+index created!
+Loading and preparing results...
+DONE (t=0.01s)
+creating index...
+index created!
+tokenization...
+setting up scorers...
+computing Bleu score...
+{'testlen': 15334, 'reflen': 15211, 'guess': [15334, 13405, 11476, 9547], 'correct': [12712, 8630, 5831, 3927]}
+ratio: 1.0080862533692059
+Bleu_1: 0.829
+Bleu_2: 0.731
+Bleu_3: 0.647
+Bleu_4: 0.578
+computing METEOR score...
+METEOR: 0.392
+computing Rouge score...
+ROUGE_L: 0.737
+computing CIDEr score...
+CIDEr: 1.326
+computing SPICE score...
+SPICE: 0.311
+Loading checkpoint from ./experiments/DIRL+CCR_levir/snapshots/DIRL+CCR_levir_checkpoint_9000.pt
+DIRL(
+  (img): Sequential(
+    (0): Conv2d(1024, 512, kernel_size=(1, 1), stride=(1, 1))
+  )
+  (w_embedding): Embedding(14, 256)
+  (h_embedding): Embedding(14, 256)
+  (mlp): Sequential(
+    (0): Linear(in_features=512, out_features=2048, bias=True)
+    (1): ReLU()
+    (2): Dropout(p=0.1, inplace=False)
+    (3): Linear(in_features=2048, out_features=512, bias=True)
+  )
+  (transformer): ModuleList(
+    (0): CrossTransformer(
+      (attention): MultiheadAttention(
+        (out_proj): _LinearWithBias(in_features=512, out_features=512, bias=True)
+      )
+      (norm1): LayerNorm((512,), eps=1e-05, elementwise_affine=True)
+      (dropout1): Dropout(p=0.1, inplace=False)
+    )
+    (1): CrossTransformer(
+      (attention): MultiheadAttention(
+        (out_proj): _LinearWithBias(in_features=512, out_features=512, bias=True)
+      )
+      (norm1): LayerNorm((512,), eps=1e-05, elementwise_affine=True)
+      (dropout1): Dropout(p=0.1, inplace=False)
+    )
+  )
+)
+CCR(
+  (core): Core(
+    (embed): Embedding(860, 300, padding_idx=0)
+    (fc): Sequential(
+      (0): Linear(in_features=300, out_features=512, bias=True)
+      (1): LayerNorm((512,), eps=1e-05, elementwise_affine=True)
+      (2): Dropout(p=0.1, inplace=False)
+    )
+    (embed_fc): Sequential(
+      (0): Linear(in_features=1024, out_features=512, bias=True)
+      (1): LayerNorm((512,), eps=1e-05, elementwise_affine=True)
+      (2): Dropout(p=0.1, inplace=False)
+      (3): ReLU()
+    )
+    (position_enc): PositionEncoding()
+    (aux_decoder): Sequential(
+      (0): Conv2d(512, 512, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+      (1): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (2): ReLU(inplace=True)
+      (3): Conv2d(512, 256, kernel_size=(1, 1), stride=(1, 1))
+      (4): ConvTranspose2d(256, 3, kernel_size=(18, 18), stride=(18, 18), padding=(1, 1), output_padding=(6, 6))
+    )
+    (aux_loss_fn): L1Loss()
+    (layer): ModuleList(
+      (0): CrossTransformer(
+        (self_att): MultiheadAttention(
+          (out_proj): _LinearWithBias(in_features=512, out_features=512, bias=True)
+        )
+        (cross_att): MultiheadAttention(
+          (out_proj): _LinearWithBias(in_features=512, out_features=512, bias=True)
+        )
+        (norm1): LayerNorm((512,), eps=1e-05, elementwise_affine=True)
+        (norm2): LayerNorm((512,), eps=1e-05, elementwise_affine=True)
+        (norm3): LayerNorm((512,), eps=1e-05, elementwise_affine=True)
+        (dropout1): Dropout(p=0.1, inplace=False)
+        (dropout2): Dropout(p=0.1, inplace=False)
+        (dropout3): Dropout(p=0.1, inplace=False)
+        (activation): ReLU()
+        (linear1): Linear(in_features=512, out_features=2048, bias=True)
+        (linear2): Linear(in_features=2048, out_features=512, bias=True)
+        (dropout): Dropout(p=0.1, inplace=False)
+      )
+      (1): CrossTransformer(
+        (self_att): MultiheadAttention(
+          (out_proj): _LinearWithBias(in_features=512, out_features=512, bias=True)
+        )
+        (cross_att): MultiheadAttention(
+          (out_proj): _LinearWithBias(in_features=512, out_features=512, bias=True)
+        )
+        (norm1): LayerNorm((512,), eps=1e-05, elementwise_affine=True)
+        (norm2): LayerNorm((512,), eps=1e-05, elementwise_affine=True)
+        (norm3): LayerNorm((512,), eps=1e-05, elementwise_affine=True)
+        (dropout1): Dropout(p=0.1, inplace=False)
+        (dropout2): Dropout(p=0.1, inplace=False)
+        (dropout3): Dropout(p=0.1, inplace=False)
+        (activation): ReLU()
+        (linear1): Linear(in_features=512, out_features=2048, bias=True)
+        (linear2): Linear(in_features=2048, out_features=512, bias=True)
+        (dropout): Dropout(p=0.1, inplace=False)
+      )
+    )
+  )
+  (logit): Linear(in_features=512, out_features=860, bias=True)
+  (loss_func): CrossEntropyLoss()
+)
+AddSpatialInfo()
+Speaker Dataset loading vocab json file:  /data/heedong/DIRL_Capstone/data_loader/LEVIR-MCI-dataset/images_flattened/annotations/transformer_vocab.json
+vocab size is  860
+Dataset size for train: 6815
+Max sequence length is 42
+Speaker Dataset loading vocab json file:  /data/heedong/DIRL_Capstone/data_loader/LEVIR-MCI-dataset/images_flattened/annotations/transformer_vocab.json
+vocab size is  860
+Dataset size for test: 1929
+Max sequence length is 42
+Test took 92.1008 seconds
+SPICE evaluation took: 2.805 s
+loading annotations into memory...
+Done (t=0.05s)
+creating index...
+index created!
+Loading and preparing results...
+DONE (t=0.01s)
+creating index...
+index created!
+tokenization...
+setting up scorers...
+computing Bleu score...
+{'testlen': 15334, 'reflen': 15211, 'guess': [15334, 13405, 11476, 9547], 'correct': [12712, 8630, 5831, 3927]}
+ratio: 1.0080862533692059
+Bleu_1: 0.829
+Bleu_2: 0.731
+Bleu_3: 0.647
+Bleu_4: 0.578
+computing METEOR score...
+METEOR: 0.392
+computing Rouge score...
+ROUGE_L: 0.737
+computing CIDEr score...
+CIDEr: 1.326
+computing SPICE score...
+SPICE: 0.311
+Loading checkpoint from ./experiments/DIRL+CCR_levir/snapshots/DIRL+CCR_levir_checkpoint_10000.pt
+DIRL(
+  (img): Sequential(
+    (0): Conv2d(1024, 512, kernel_size=(1, 1), stride=(1, 1))
+  )
+  (w_embedding): Embedding(14, 256)
+  (h_embedding): Embedding(14, 256)
+  (mlp): Sequential(
+    (0): Linear(in_features=512, out_features=2048, bias=True)
+    (1): ReLU()
+    (2): Dropout(p=0.1, inplace=False)
+    (3): Linear(in_features=2048, out_features=512, bias=True)
+  )
+  (transformer): ModuleList(
+    (0): CrossTransformer(
+      (attention): MultiheadAttention(
+        (out_proj): _LinearWithBias(in_features=512, out_features=512, bias=True)
+      )
+      (norm1): LayerNorm((512,), eps=1e-05, elementwise_affine=True)
+      (dropout1): Dropout(p=0.1, inplace=False)
+    )
+    (1): CrossTransformer(
+      (attention): MultiheadAttention(
+        (out_proj): _LinearWithBias(in_features=512, out_features=512, bias=True)
+      )
+      (norm1): LayerNorm((512,), eps=1e-05, elementwise_affine=True)
+      (dropout1): Dropout(p=0.1, inplace=False)
+    )
+  )
+)
+CCR(
+  (core): Core(
+    (embed): Embedding(860, 300, padding_idx=0)
+    (fc): Sequential(
+      (0): Linear(in_features=300, out_features=512, bias=True)
+      (1): LayerNorm((512,), eps=1e-05, elementwise_affine=True)
+      (2): Dropout(p=0.1, inplace=False)
+    )
+    (embed_fc): Sequential(
+      (0): Linear(in_features=1024, out_features=512, bias=True)
+      (1): LayerNorm((512,), eps=1e-05, elementwise_affine=True)
+      (2): Dropout(p=0.1, inplace=False)
+      (3): ReLU()
+    )
+    (position_enc): PositionEncoding()
+    (aux_decoder): Sequential(
+      (0): Conv2d(512, 512, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+      (1): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (2): ReLU(inplace=True)
+      (3): Conv2d(512, 256, kernel_size=(1, 1), stride=(1, 1))
+      (4): ConvTranspose2d(256, 3, kernel_size=(18, 18), stride=(18, 18), padding=(1, 1), output_padding=(6, 6))
+    )
+    (aux_loss_fn): L1Loss()
+    (layer): ModuleList(
+      (0): CrossTransformer(
+        (self_att): MultiheadAttention(
+          (out_proj): _LinearWithBias(in_features=512, out_features=512, bias=True)
+        )
+        (cross_att): MultiheadAttention(
+          (out_proj): _LinearWithBias(in_features=512, out_features=512, bias=True)
+        )
+        (norm1): LayerNorm((512,), eps=1e-05, elementwise_affine=True)
+        (norm2): LayerNorm((512,), eps=1e-05, elementwise_affine=True)
+        (norm3): LayerNorm((512,), eps=1e-05, elementwise_affine=True)
+        (dropout1): Dropout(p=0.1, inplace=False)
+        (dropout2): Dropout(p=0.1, inplace=False)
+        (dropout3): Dropout(p=0.1, inplace=False)
+        (activation): ReLU()
+        (linear1): Linear(in_features=512, out_features=2048, bias=True)
+        (linear2): Linear(in_features=2048, out_features=512, bias=True)
+        (dropout): Dropout(p=0.1, inplace=False)
+      )
+      (1): CrossTransformer(
+        (self_att): MultiheadAttention(
+          (out_proj): _LinearWithBias(in_features=512, out_features=512, bias=True)
+        )
+        (cross_att): MultiheadAttention(
+          (out_proj): _LinearWithBias(in_features=512, out_features=512, bias=True)
+        )
+        (norm1): LayerNorm((512,), eps=1e-05, elementwise_affine=True)
+        (norm2): LayerNorm((512,), eps=1e-05, elementwise_affine=True)
+        (norm3): LayerNorm((512,), eps=1e-05, elementwise_affine=True)
+        (dropout1): Dropout(p=0.1, inplace=False)
+        (dropout2): Dropout(p=0.1, inplace=False)
+        (dropout3): Dropout(p=0.1, inplace=False)
+        (activation): ReLU()
+        (linear1): Linear(in_features=512, out_features=2048, bias=True)
+        (linear2): Linear(in_features=2048, out_features=512, bias=True)
+        (dropout): Dropout(p=0.1, inplace=False)
+      )
+    )
+  )
+  (logit): Linear(in_features=512, out_features=860, bias=True)
+  (loss_func): CrossEntropyLoss()
+)
+AddSpatialInfo()
+Speaker Dataset loading vocab json file:  /data/heedong/DIRL_Capstone/data_loader/LEVIR-MCI-dataset/images_flattened/annotations/transformer_vocab.json
+vocab size is  860
+Dataset size for train: 6815
+Max sequence length is 42
+Speaker Dataset loading vocab json file:  /data/heedong/DIRL_Capstone/data_loader/LEVIR-MCI-dataset/images_flattened/annotations/transformer_vocab.json
+vocab size is  860
+Dataset size for test: 1929
+Max sequence length is 42
+Test took 93.9389 seconds
+SPICE evaluation took: 2.789 s
+loading annotations into memory...
+Done (t=0.05s)
+creating index...
+index created!
+Loading and preparing results...
+DONE (t=0.01s)
+creating index...
+index created!
+tokenization...
+setting up scorers...
+computing Bleu score...
+{'testlen': 15334, 'reflen': 15211, 'guess': [15334, 13405, 11476, 9547], 'correct': [12712, 8630, 5831, 3927]}
+ratio: 1.0080862533692059
+Bleu_1: 0.829
+Bleu_2: 0.731
+Bleu_3: 0.647
+Bleu_4: 0.578
+computing METEOR score...
+METEOR: 0.392
+computing Rouge score...
+ROUGE_L: 0.737
+computing CIDEr score...
+CIDEr: 1.326
+computing SPICE score...
+SPICE: 0.311
+Loading checkpoint from ./experiments/DIRL+CCR_levir/snapshots/DIRL+CCR_levir_checkpoint_11000.pt
+DIRL(
+  (img): Sequential(
+    (0): Conv2d(1024, 512, kernel_size=(1, 1), stride=(1, 1))
+  )
+  (w_embedding): Embedding(14, 256)
+  (h_embedding): Embedding(14, 256)
+  (mlp): Sequential(
+    (0): Linear(in_features=512, out_features=2048, bias=True)
+    (1): ReLU()
+    (2): Dropout(p=0.1, inplace=False)
+    (3): Linear(in_features=2048, out_features=512, bias=True)
+  )
+  (transformer): ModuleList(
+    (0): CrossTransformer(
+      (attention): MultiheadAttention(
+        (out_proj): _LinearWithBias(in_features=512, out_features=512, bias=True)
+      )
+      (norm1): LayerNorm((512,), eps=1e-05, elementwise_affine=True)
+      (dropout1): Dropout(p=0.1, inplace=False)
+    )
+    (1): CrossTransformer(
+      (attention): MultiheadAttention(
+        (out_proj): _LinearWithBias(in_features=512, out_features=512, bias=True)
+      )
+      (norm1): LayerNorm((512,), eps=1e-05, elementwise_affine=True)
+      (dropout1): Dropout(p=0.1, inplace=False)
+    )
+  )
+)
+CCR(
+  (core): Core(
+    (embed): Embedding(860, 300, padding_idx=0)
+    (fc): Sequential(
+      (0): Linear(in_features=300, out_features=512, bias=True)
+      (1): LayerNorm((512,), eps=1e-05, elementwise_affine=True)
+      (2): Dropout(p=0.1, inplace=False)
+    )
+    (embed_fc): Sequential(
+      (0): Linear(in_features=1024, out_features=512, bias=True)
+      (1): LayerNorm((512,), eps=1e-05, elementwise_affine=True)
+      (2): Dropout(p=0.1, inplace=False)
+      (3): ReLU()
+    )
+    (position_enc): PositionEncoding()
+    (aux_decoder): Sequential(
+      (0): Conv2d(512, 512, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+      (1): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (2): ReLU(inplace=True)
+      (3): Conv2d(512, 256, kernel_size=(1, 1), stride=(1, 1))
+      (4): ConvTranspose2d(256, 3, kernel_size=(18, 18), stride=(18, 18), padding=(1, 1), output_padding=(6, 6))
+    )
+    (aux_loss_fn): L1Loss()
+    (layer): ModuleList(
+      (0): CrossTransformer(
+        (self_att): MultiheadAttention(
+          (out_proj): _LinearWithBias(in_features=512, out_features=512, bias=True)
+        )
+        (cross_att): MultiheadAttention(
+          (out_proj): _LinearWithBias(in_features=512, out_features=512, bias=True)
+        )
+        (norm1): LayerNorm((512,), eps=1e-05, elementwise_affine=True)
+        (norm2): LayerNorm((512,), eps=1e-05, elementwise_affine=True)
+        (norm3): LayerNorm((512,), eps=1e-05, elementwise_affine=True)
+        (dropout1): Dropout(p=0.1, inplace=False)
+        (dropout2): Dropout(p=0.1, inplace=False)
+        (dropout3): Dropout(p=0.1, inplace=False)
+        (activation): ReLU()
+        (linear1): Linear(in_features=512, out_features=2048, bias=True)
+        (linear2): Linear(in_features=2048, out_features=512, bias=True)
+        (dropout): Dropout(p=0.1, inplace=False)
+      )
+      (1): CrossTransformer(
+        (self_att): MultiheadAttention(
+          (out_proj): _LinearWithBias(in_features=512, out_features=512, bias=True)
+        )
+        (cross_att): MultiheadAttention(
+          (out_proj): _LinearWithBias(in_features=512, out_features=512, bias=True)
+        )
+        (norm1): LayerNorm((512,), eps=1e-05, elementwise_affine=True)
+        (norm2): LayerNorm((512,), eps=1e-05, elementwise_affine=True)
+        (norm3): LayerNorm((512,), eps=1e-05, elementwise_affine=True)
+        (dropout1): Dropout(p=0.1, inplace=False)
+        (dropout2): Dropout(p=0.1, inplace=False)
+        (dropout3): Dropout(p=0.1, inplace=False)
+        (activation): ReLU()
+        (linear1): Linear(in_features=512, out_features=2048, bias=True)
+        (linear2): Linear(in_features=2048, out_features=512, bias=True)
+        (dropout): Dropout(p=0.1, inplace=False)
+      )
+    )
+  )
+  (logit): Linear(in_features=512, out_features=860, bias=True)
+  (loss_func): CrossEntropyLoss()
+)
+AddSpatialInfo()
+Speaker Dataset loading vocab json file:  /data/heedong/DIRL_Capstone/data_loader/LEVIR-MCI-dataset/images_flattened/annotations/transformer_vocab.json
+vocab size is  860
+Dataset size for train: 6815
+Max sequence length is 42
+Speaker Dataset loading vocab json file:  /data/heedong/DIRL_Capstone/data_loader/LEVIR-MCI-dataset/images_flattened/annotations/transformer_vocab.json
+vocab size is  860
+Dataset size for test: 1929
+Max sequence length is 42
+Test took 93.3558 seconds
+SPICE evaluation took: 2.743 s
+loading annotations into memory...
+Done (t=0.06s)
+creating index...
+index created!
+Loading and preparing results...
+DONE (t=0.01s)
+creating index...
+index created!
+tokenization...
+setting up scorers...
+computing Bleu score...
+{'testlen': 15334, 'reflen': 15211, 'guess': [15334, 13405, 11476, 9547], 'correct': [12712, 8630, 5831, 3927]}
+ratio: 1.0080862533692059
+Bleu_1: 0.829
+Bleu_2: 0.731
+Bleu_3: 0.647
+Bleu_4: 0.578
+computing METEOR score...
+METEOR: 0.392
+computing Rouge score...
+ROUGE_L: 0.737
+computing CIDEr score...
+CIDEr: 1.326
+computing SPICE score...
+SPICE: 0.311
+Loading checkpoint from ./experiments/DIRL+CCR_levir/snapshots/DIRL+CCR_levir_checkpoint_12000.pt
+DIRL(
+  (img): Sequential(
+    (0): Conv2d(1024, 512, kernel_size=(1, 1), stride=(1, 1))
+  )
+  (w_embedding): Embedding(14, 256)
+  (h_embedding): Embedding(14, 256)
+  (mlp): Sequential(
+    (0): Linear(in_features=512, out_features=2048, bias=True)
+    (1): ReLU()
+    (2): Dropout(p=0.1, inplace=False)
+    (3): Linear(in_features=2048, out_features=512, bias=True)
+  )
+  (transformer): ModuleList(
+    (0): CrossTransformer(
+      (attention): MultiheadAttention(
+        (out_proj): _LinearWithBias(in_features=512, out_features=512, bias=True)
+      )
+      (norm1): LayerNorm((512,), eps=1e-05, elementwise_affine=True)
+      (dropout1): Dropout(p=0.1, inplace=False)
+    )
+    (1): CrossTransformer(
+      (attention): MultiheadAttention(
+        (out_proj): _LinearWithBias(in_features=512, out_features=512, bias=True)
+      )
+      (norm1): LayerNorm((512,), eps=1e-05, elementwise_affine=True)
+      (dropout1): Dropout(p=0.1, inplace=False)
+    )
+  )
+)
+CCR(
+  (core): Core(
+    (embed): Embedding(860, 300, padding_idx=0)
+    (fc): Sequential(
+      (0): Linear(in_features=300, out_features=512, bias=True)
+      (1): LayerNorm((512,), eps=1e-05, elementwise_affine=True)
+      (2): Dropout(p=0.1, inplace=False)
+    )
+    (embed_fc): Sequential(
+      (0): Linear(in_features=1024, out_features=512, bias=True)
+      (1): LayerNorm((512,), eps=1e-05, elementwise_affine=True)
+      (2): Dropout(p=0.1, inplace=False)
+      (3): ReLU()
+    )
+    (position_enc): PositionEncoding()
+    (aux_decoder): Sequential(
+      (0): Conv2d(512, 512, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+      (1): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (2): ReLU(inplace=True)
+      (3): Conv2d(512, 256, kernel_size=(1, 1), stride=(1, 1))
+      (4): ConvTranspose2d(256, 3, kernel_size=(18, 18), stride=(18, 18), padding=(1, 1), output_padding=(6, 6))
+    )
+    (aux_loss_fn): L1Loss()
+    (layer): ModuleList(
+      (0): CrossTransformer(
+        (self_att): MultiheadAttention(
+          (out_proj): _LinearWithBias(in_features=512, out_features=512, bias=True)
+        )
+        (cross_att): MultiheadAttention(
+          (out_proj): _LinearWithBias(in_features=512, out_features=512, bias=True)
+        )
+        (norm1): LayerNorm((512,), eps=1e-05, elementwise_affine=True)
+        (norm2): LayerNorm((512,), eps=1e-05, elementwise_affine=True)
+        (norm3): LayerNorm((512,), eps=1e-05, elementwise_affine=True)
+        (dropout1): Dropout(p=0.1, inplace=False)
+        (dropout2): Dropout(p=0.1, inplace=False)
+        (dropout3): Dropout(p=0.1, inplace=False)
+        (activation): ReLU()
+        (linear1): Linear(in_features=512, out_features=2048, bias=True)
+        (linear2): Linear(in_features=2048, out_features=512, bias=True)
+        (dropout): Dropout(p=0.1, inplace=False)
+      )
+      (1): CrossTransformer(
+        (self_att): MultiheadAttention(
+          (out_proj): _LinearWithBias(in_features=512, out_features=512, bias=True)
+        )
+        (cross_att): MultiheadAttention(
+          (out_proj): _LinearWithBias(in_features=512, out_features=512, bias=True)
+        )
+        (norm1): LayerNorm((512,), eps=1e-05, elementwise_affine=True)
+        (norm2): LayerNorm((512,), eps=1e-05, elementwise_affine=True)
+        (norm3): LayerNorm((512,), eps=1e-05, elementwise_affine=True)
+        (dropout1): Dropout(p=0.1, inplace=False)
+        (dropout2): Dropout(p=0.1, inplace=False)
+        (dropout3): Dropout(p=0.1, inplace=False)
+        (activation): ReLU()
+        (linear1): Linear(in_features=512, out_features=2048, bias=True)
+        (linear2): Linear(in_features=2048, out_features=512, bias=True)
+        (dropout): Dropout(p=0.1, inplace=False)
+      )
+    )
+  )
+  (logit): Linear(in_features=512, out_features=860, bias=True)
+  (loss_func): CrossEntropyLoss()
+)
+AddSpatialInfo()
+Speaker Dataset loading vocab json file:  /data/heedong/DIRL_Capstone/data_loader/LEVIR-MCI-dataset/images_flattened/annotations/transformer_vocab.json
+vocab size is  860
+Dataset size for train: 6815
+Max sequence length is 42
+Speaker Dataset loading vocab json file:  /data/heedong/DIRL_Capstone/data_loader/LEVIR-MCI-dataset/images_flattened/annotations/transformer_vocab.json
+vocab size is  860
+Dataset size for test: 1929
+Max sequence length is 42
+Test took 93.1478 seconds
+SPICE evaluation took: 2.812 s
+loading annotations into memory...
+Done (t=0.05s)
+creating index...
+index created!
+Loading and preparing results...
+DONE (t=0.01s)
+creating index...
+index created!
+tokenization...
+setting up scorers...
+computing Bleu score...
+{'testlen': 15334, 'reflen': 15211, 'guess': [15334, 13405, 11476, 9547], 'correct': [12712, 8630, 5831, 3927]}
+ratio: 1.0080862533692059
+Bleu_1: 0.829
+Bleu_2: 0.731
+Bleu_3: 0.647
+Bleu_4: 0.578
+computing METEOR score...
+METEOR: 0.392
+computing Rouge score...
+ROUGE_L: 0.737
+computing CIDEr score...
+CIDEr: 1.326
+computing SPICE score...
+SPICE: 0.311
+Loading checkpoint from ./experiments/DIRL+CCR_levir/snapshots/DIRL+CCR_levir_checkpoint_13000.pt
+DIRL(
+  (img): Sequential(
+    (0): Conv2d(1024, 512, kernel_size=(1, 1), stride=(1, 1))
+  )
+  (w_embedding): Embedding(14, 256)
+  (h_embedding): Embedding(14, 256)
+  (mlp): Sequential(
+    (0): Linear(in_features=512, out_features=2048, bias=True)
+    (1): ReLU()
+    (2): Dropout(p=0.1, inplace=False)
+    (3): Linear(in_features=2048, out_features=512, bias=True)
+  )
+  (transformer): ModuleList(
+    (0): CrossTransformer(
+      (attention): MultiheadAttention(
+        (out_proj): _LinearWithBias(in_features=512, out_features=512, bias=True)
+      )
+      (norm1): LayerNorm((512,), eps=1e-05, elementwise_affine=True)
+      (dropout1): Dropout(p=0.1, inplace=False)
+    )
+    (1): CrossTransformer(
+      (attention): MultiheadAttention(
+        (out_proj): _LinearWithBias(in_features=512, out_features=512, bias=True)
+      )
+      (norm1): LayerNorm((512,), eps=1e-05, elementwise_affine=True)
+      (dropout1): Dropout(p=0.1, inplace=False)
+    )
+  )
+)
+CCR(
+  (core): Core(
+    (embed): Embedding(860, 300, padding_idx=0)
+    (fc): Sequential(
+      (0): Linear(in_features=300, out_features=512, bias=True)
+      (1): LayerNorm((512,), eps=1e-05, elementwise_affine=True)
+      (2): Dropout(p=0.1, inplace=False)
+    )
+    (embed_fc): Sequential(
+      (0): Linear(in_features=1024, out_features=512, bias=True)
+      (1): LayerNorm((512,), eps=1e-05, elementwise_affine=True)
+      (2): Dropout(p=0.1, inplace=False)
+      (3): ReLU()
+    )
+    (position_enc): PositionEncoding()
+    (aux_decoder): Sequential(
+      (0): Conv2d(512, 512, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+      (1): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (2): ReLU(inplace=True)
+      (3): Conv2d(512, 256, kernel_size=(1, 1), stride=(1, 1))
+      (4): ConvTranspose2d(256, 3, kernel_size=(18, 18), stride=(18, 18), padding=(1, 1), output_padding=(6, 6))
+    )
+    (aux_loss_fn): L1Loss()
+    (layer): ModuleList(
+      (0): CrossTransformer(
+        (self_att): MultiheadAttention(
+          (out_proj): _LinearWithBias(in_features=512, out_features=512, bias=True)
+        )
+        (cross_att): MultiheadAttention(
+          (out_proj): _LinearWithBias(in_features=512, out_features=512, bias=True)
+        )
+        (norm1): LayerNorm((512,), eps=1e-05, elementwise_affine=True)
+        (norm2): LayerNorm((512,), eps=1e-05, elementwise_affine=True)
+        (norm3): LayerNorm((512,), eps=1e-05, elementwise_affine=True)
+        (dropout1): Dropout(p=0.1, inplace=False)
+        (dropout2): Dropout(p=0.1, inplace=False)
+        (dropout3): Dropout(p=0.1, inplace=False)
+        (activation): ReLU()
+        (linear1): Linear(in_features=512, out_features=2048, bias=True)
+        (linear2): Linear(in_features=2048, out_features=512, bias=True)
+        (dropout): Dropout(p=0.1, inplace=False)
+      )
+      (1): CrossTransformer(
+        (self_att): MultiheadAttention(
+          (out_proj): _LinearWithBias(in_features=512, out_features=512, bias=True)
+        )
+        (cross_att): MultiheadAttention(
+          (out_proj): _LinearWithBias(in_features=512, out_features=512, bias=True)
+        )
+        (norm1): LayerNorm((512,), eps=1e-05, elementwise_affine=True)
+        (norm2): LayerNorm((512,), eps=1e-05, elementwise_affine=True)
+        (norm3): LayerNorm((512,), eps=1e-05, elementwise_affine=True)
+        (dropout1): Dropout(p=0.1, inplace=False)
+        (dropout2): Dropout(p=0.1, inplace=False)
+        (dropout3): Dropout(p=0.1, inplace=False)
+        (activation): ReLU()
+        (linear1): Linear(in_features=512, out_features=2048, bias=True)
+        (linear2): Linear(in_features=2048, out_features=512, bias=True)
+        (dropout): Dropout(p=0.1, inplace=False)
+      )
+    )
+  )
+  (logit): Linear(in_features=512, out_features=860, bias=True)
+  (loss_func): CrossEntropyLoss()
+)
+AddSpatialInfo()
+Speaker Dataset loading vocab json file:  /data/heedong/DIRL_Capstone/data_loader/LEVIR-MCI-dataset/images_flattened/annotations/transformer_vocab.json
+vocab size is  860
+Dataset size for train: 6815
+Max sequence length is 42
+Speaker Dataset loading vocab json file:  /data/heedong/DIRL_Capstone/data_loader/LEVIR-MCI-dataset/images_flattened/annotations/transformer_vocab.json
+vocab size is  860
+Dataset size for test: 1929
+Max sequence length is 42
+Test took 92.6956 seconds
+SPICE evaluation took: 2.787 s
+loading annotations into memory...
+Done (t=0.06s)
+creating index...
+index created!
+Loading and preparing results...
+DONE (t=0.01s)
+creating index...
+index created!
+tokenization...
+setting up scorers...
+computing Bleu score...
+{'testlen': 15334, 'reflen': 15211, 'guess': [15334, 13405, 11476, 9547], 'correct': [12712, 8630, 5831, 3927]}
+ratio: 1.0080862533692059
+Bleu_1: 0.829
+Bleu_2: 0.731
+Bleu_3: 0.647
+Bleu_4: 0.578
+computing METEOR score...
+METEOR: 0.392
+computing Rouge score...
+ROUGE_L: 0.737
+computing CIDEr score...
+CIDEr: 1.326
+computing SPICE score...
+SPICE: 0.311

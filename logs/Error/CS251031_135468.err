@@ -1,0 +1,28 @@
+/data/heedong/anaconda3/envs/change-captioning-baseline/lib/python3.9/site-packages/torch/utils/data/dataloader.py:474: UserWarning: This DataLoader will create 8 worker processes in total. Our suggested max number of worker in current system is 4, which is smaller than what this DataLoader is going to create. Please be aware that excessive worker creation might get DataLoader running slow or even freeze, lower the worker number to avoid potential slowness/freeze if necessary.
+  warnings.warn(_create_warning_msg(
+0it [00:00, ?it/s]1it [00:00,  1.37it/s]4it [00:00,  5.59it/s]7it [00:01,  9.43it/s]10it [00:01, 12.82it/s]13it [00:01, 16.31it/s]16it [00:01, 18.86it/s]19it [00:01, 17.59it/s]22it [00:01, 19.69it/s]25it [00:01, 21.85it/s]26it [00:01, 14.40it/s]
+Traceback (most recent call last):
+  File "/data/heedong/DIRL_Capstone/test.py", line 99, in <module>
+    for i, batch in tqdm(enumerate(test_loader)):
+  File "/data/heedong/anaconda3/envs/change-captioning-baseline/lib/python3.9/site-packages/tqdm/std.py", line 1181, in __iter__
+    for obj in iterable:
+  File "/data/heedong/anaconda3/envs/change-captioning-baseline/lib/python3.9/site-packages/torch/utils/data/dataloader.py", line 517, in __next__
+    data = self._next_data()
+  File "/data/heedong/anaconda3/envs/change-captioning-baseline/lib/python3.9/site-packages/torch/utils/data/dataloader.py", line 1199, in _next_data
+    return self._process_data(data)
+  File "/data/heedong/anaconda3/envs/change-captioning-baseline/lib/python3.9/site-packages/torch/utils/data/dataloader.py", line 1225, in _process_data
+    data.reraise()
+  File "/data/heedong/anaconda3/envs/change-captioning-baseline/lib/python3.9/site-packages/torch/_utils.py", line 429, in reraise
+    raise self.exc_type(msg)
+FileNotFoundError: Caught FileNotFoundError in DataLoader worker process 2.
+Original Traceback (most recent call last):
+  File "/data/heedong/anaconda3/envs/change-captioning-baseline/lib/python3.9/site-packages/torch/utils/data/_utils/worker.py", line 202, in _worker_loop
+    data = fetcher.fetch(index)
+  File "/data/heedong/anaconda3/envs/change-captioning-baseline/lib/python3.9/site-packages/torch/utils/data/_utils/fetch.py", line 44, in fetch
+    data = [self.dataset[idx] for idx in possibly_batched_index]
+  File "/data/heedong/anaconda3/envs/change-captioning-baseline/lib/python3.9/site-packages/torch/utils/data/_utils/fetch.py", line 44, in <listcomp>
+    data = [self.dataset[idx] for idx in possibly_batched_index]
+  File "/data/heedong/DIRL_Capstone/data_loader/rcc_dataset_transformer_dc.py", line 173, in __getitem__
+    raise FileNotFoundError(f"Aux label not found: {label_path}")
+FileNotFoundError: Aux label not found: /data4/local_datasets/heedong_data/LEVIR-MCI-dataset/images/test/label_rgb/test_000027.png
+

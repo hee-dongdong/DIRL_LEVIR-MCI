@@ -11,9 +11,9 @@ import torch.nn.functional as F
 import random
 
 from configs.config_transformer import cfg, merge_cfg_from_file
-from datasets.datasets import create_dataset
+from data_loader.datasets import create_dataset
 from models.DIRL import DIRL, AddSpatialInfo
-from models.CCR import CCR
+from models.new_CCR import CCR
 from utils.logger import Logger
 from utils.utils import AverageMeter, accuracy, set_mode, save_checkpoint, \
                         LanguageModelCriterion, decode_sequence, decode_sequence_transformer, decode_beams, \
@@ -21,7 +21,7 @@ from utils.utils import AverageMeter, accuracy, set_mode, save_checkpoint, \
                         EntropyLoss, LabelSmoothingLoss
 
 from utils.vis_utils import visualize_att
-os.environ["CUDA_VISIBLE_DEVICES"] = "1"
+# os.environ["CUDA_VISIBLE_DEVICES"] = "1"
 
 # Load config
 parser = argparse.ArgumentParser()
@@ -125,6 +125,7 @@ while t < cfg.train.max_iter:
     speaker_loss_avg = AverageMeter()
     cdcr_loss_avg = AverageMeter()
     sim_loss_avg = AverageMeter()
+    aux_loss_avg = AverageMeter()
     total_loss_avg = AverageMeter()
 
     if epoch > cfg.train.scheduled_sampling_start and cfg.train.scheduled_sampling_start >= 0:
@@ -139,7 +140,7 @@ while t < cfg.train.max_iter:
         iter_start_time = time.time()
 
         d_feats, sc_feats, \
-        labels, labels_with_ignore, masks, d_img_paths, sc_img_paths = batch
+        labels, labels_with_ignore, masks, aux_labels, d_img_paths, sc_img_paths = batch
 
         batch_size = d_feats.size(0)
         labels = labels.squeeze(1)
@@ -150,14 +151,18 @@ while t < cfg.train.max_iter:
         d_feats, sc_feats = d_feats.to(device), sc_feats.to(device)
 
         labels, labels_with_ignore, masks = labels.to(device), labels_with_ignore.to(device), masks.to(device)
+        aux_labels = aux_labels.to(device)
 
         optimizer.zero_grad()
 
         diff_bef_pos, diff_aft_pos, dirl_loss = change_detector(d_feats, sc_feats)
 
 
-        loss_pos, att_pos, ccr_loss = speaker._forward(diff_bef_pos, diff_aft_pos,
-                                              labels, masks, labels_with_ignore=labels_with_ignore)
+        loss_pos, att_pos, ccr_loss, aux_loss = speaker._forward(
+            diff_bef_pos, diff_aft_pos,
+            labels, masks,
+            labels_with_ignore=labels_with_ignore,
+            auxiliary_target=aux_labels)
 
 
         speaker_loss = loss_pos
@@ -167,14 +172,16 @@ while t < cfg.train.max_iter:
         dirl_loss_val = dirl_loss.item()
 
         ccr_loss_val = ccr_loss.item()
+        aux_loss_val = aux_loss.item()
 
-        total_loss = speaker_loss + 0.03 * dirl_loss + 0.05 * ccr_loss
+        total_loss = speaker_loss + 0.03 * dirl_loss + 0.05 * ccr_loss + 0.05 * aux_loss
 
         total_loss_val = total_loss.item()
 
         speaker_loss_avg.update(speaker_loss_val, 2 * batch_size)
         cdcr_loss_avg.update(dirl_loss_val, 2 * batch_size)
         sim_loss_avg.update(ccr_loss_val, 2 * batch_size)
+        aux_loss_avg.update(aux_loss_val, 2 * batch_size)
         total_loss_avg.update(total_loss_val, 2 * batch_size)
 
         stats = {}
@@ -185,6 +192,8 @@ while t < cfg.train.max_iter:
         stats['avg_cdcr_loss'] = cdcr_loss_avg.avg
         stats['sim_loss'] = ccr_loss_val
         stats['avg_sim_loss'] = sim_loss_avg.avg
+        stats['aux_loss'] = aux_loss_val
+        stats['avg_aux_loss'] = aux_loss_avg.avg
         stats['total_loss'] = total_loss_val
         stats['avg_total_loss'] = total_loss_avg.avg
 
@@ -241,7 +250,7 @@ while t < cfg.train.max_iter:
 
                 for val_i, val_batch in enumerate(val_loader):
                     d_feats, sc_feats, \
-                    labels, labels_with_ignore, masks, \
+                    labels, labels_with_ignore, masks, aux_labels, \
                     d_img_paths, sc_img_paths = val_batch
 
                     val_batch_size = d_feats.size(0)

@@ -1,0 +1,136 @@
+Setting up a new session...
+Traceback (most recent call last):
+  File "/data/heedong/anaconda3/envs/change-captioning-baseline/lib/python3.9/site-packages/urllib3/connection.py", line 198, in _new_conn
+    sock = connection.create_connection(
+  File "/data/heedong/anaconda3/envs/change-captioning-baseline/lib/python3.9/site-packages/urllib3/util/connection.py", line 85, in create_connection
+    raise err
+  File "/data/heedong/anaconda3/envs/change-captioning-baseline/lib/python3.9/site-packages/urllib3/util/connection.py", line 73, in create_connection
+    sock.connect(sa)
+ConnectionRefusedError: [Errno 111] Connection refused
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/data/heedong/anaconda3/envs/change-captioning-baseline/lib/python3.9/site-packages/urllib3/connectionpool.py", line 787, in urlopen
+    response = self._make_request(
+  File "/data/heedong/anaconda3/envs/change-captioning-baseline/lib/python3.9/site-packages/urllib3/connectionpool.py", line 493, in _make_request
+    conn.request(
+  File "/data/heedong/anaconda3/envs/change-captioning-baseline/lib/python3.9/site-packages/urllib3/connection.py", line 494, in request
+    self.endheaders()
+  File "/data/heedong/anaconda3/envs/change-captioning-baseline/lib/python3.9/http/client.py", line 1280, in endheaders
+    self._send_output(message_body, encode_chunked=encode_chunked)
+  File "/data/heedong/anaconda3/envs/change-captioning-baseline/lib/python3.9/http/client.py", line 1040, in _send_output
+    self.send(msg)
+  File "/data/heedong/anaconda3/envs/change-captioning-baseline/lib/python3.9/http/client.py", line 980, in send
+    self.connect()
+  File "/data/heedong/anaconda3/envs/change-captioning-baseline/lib/python3.9/site-packages/urllib3/connection.py", line 325, in connect
+    self.sock = self._new_conn()
+  File "/data/heedong/anaconda3/envs/change-captioning-baseline/lib/python3.9/site-packages/urllib3/connection.py", line 213, in _new_conn
+    raise NewConnectionError(
+urllib3.exceptions.NewConnectionError: <urllib3.connection.HTTPConnection object at 0x7efca480fe50>: Failed to establish a new connection: [Errno 111] Connection refused
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/data/heedong/anaconda3/envs/change-captioning-baseline/lib/python3.9/site-packages/requests/adapters.py", line 667, in send
+    resp = conn.urlopen(
+  File "/data/heedong/anaconda3/envs/change-captioning-baseline/lib/python3.9/site-packages/urllib3/connectionpool.py", line 841, in urlopen
+    retries = retries.increment(
+  File "/data/heedong/anaconda3/envs/change-captioning-baseline/lib/python3.9/site-packages/urllib3/util/retry.py", line 519, in increment
+    raise MaxRetryError(_pool, url, reason) from reason  # type: ignore[arg-type]
+urllib3.exceptions.MaxRetryError: HTTPConnectionPool(host='localhost', port=8097): Max retries exceeded with url: /env/main (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x7efca480fe50>: Failed to establish a new connection: [Errno 111] Connection refused'))
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/data/heedong/anaconda3/envs/change-captioning-baseline/lib/python3.9/site-packages/visdom/__init__.py", line 708, in _send
+    return self._handle_post(
+  File "/data/heedong/anaconda3/envs/change-captioning-baseline/lib/python3.9/site-packages/visdom/__init__.py", line 677, in _handle_post
+    r = self.session.post(url, data=data)
+  File "/data/heedong/anaconda3/envs/change-captioning-baseline/lib/python3.9/site-packages/requests/sessions.py", line 637, in post
+    return self.request("POST", url, data=data, json=json, **kwargs)
+  File "/data/heedong/anaconda3/envs/change-captioning-baseline/lib/python3.9/site-packages/requests/sessions.py", line 589, in request
+    resp = self.send(prep, **send_kwargs)
+  File "/data/heedong/anaconda3/envs/change-captioning-baseline/lib/python3.9/site-packages/requests/sessions.py", line 703, in send
+    r = adapter.send(request, **kwargs)
+  File "/data/heedong/anaconda3/envs/change-captioning-baseline/lib/python3.9/site-packages/requests/adapters.py", line 700, in send
+    raise ConnectionError(e, request=request)
+requests.exceptions.ConnectionError: HTTPConnectionPool(host='localhost', port=8097): Max retries exceeded with url: /env/main (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x7efca480fe50>: Failed to establish a new connection: [Errno 111] Connection refused'))
+[Errno 111] Connection refused
+on_close() takes 1 positional argument but 3 were given
+Setting up a new session...
+Traceback (most recent call last):
+  File "/data/heedong/anaconda3/envs/change-captioning-baseline/lib/python3.9/site-packages/urllib3/connection.py", line 198, in _new_conn
+    sock = connection.create_connection(
+  File "/data/heedong/anaconda3/envs/change-captioning-baseline/lib/python3.9/site-packages/urllib3/util/connection.py", line 85, in create_connection
+    raise err
+  File "/data/heedong/anaconda3/envs/change-captioning-baseline/lib/python3.9/site-packages/urllib3/util/connection.py", line 73, in create_connection
+    sock.connect(sa)
+ConnectionRefusedError: [Errno 111] Connection refused
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/data/heedong/anaconda3/envs/change-captioning-baseline/lib/python3.9/site-packages/urllib3/connectionpool.py", line 787, in urlopen
+    response = self._make_request(
+  File "/data/heedong/anaconda3/envs/change-captioning-baseline/lib/python3.9/site-packages/urllib3/connectionpool.py", line 493, in _make_request
+    conn.request(
+  File "/data/heedong/anaconda3/envs/change-captioning-baseline/lib/python3.9/site-packages/urllib3/connection.py", line 494, in request
+    self.endheaders()
+  File "/data/heedong/anaconda3/envs/change-captioning-baseline/lib/python3.9/http/client.py", line 1280, in endheaders
+    self._send_output(message_body, encode_chunked=encode_chunked)
+  File "/data/heedong/anaconda3/envs/change-captioning-baseline/lib/python3.9/http/client.py", line 1040, in _send_output
+    self.send(msg)
+  File "/data/heedong/anaconda3/envs/change-captioning-baseline/lib/python3.9/http/client.py", line 980, in send
+    self.connect()
+  File "/data/heedong/anaconda3/envs/change-captioning-baseline/lib/python3.9/site-packages/urllib3/connection.py", line 325, in connect
+    self.sock = self._new_conn()
+  File "/data/heedong/anaconda3/envs/change-captioning-baseline/lib/python3.9/site-packages/urllib3/connection.py", line 213, in _new_conn
+    raise NewConnectionError(
+urllib3.exceptions.NewConnectionError: <urllib3.connection.HTTPConnection object at 0x7efdac519790>: Failed to establish a new connection: [Errno 111] Connection refused
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/data/heedong/anaconda3/envs/change-captioning-baseline/lib/python3.9/site-packages/requests/adapters.py", line 667, in send
+    resp = conn.urlopen(
+  File "/data/heedong/anaconda3/envs/change-captioning-baseline/lib/python3.9/site-packages/urllib3/connectionpool.py", line 841, in urlopen
+    retries = retries.increment(
+  File "/data/heedong/anaconda3/envs/change-captioning-baseline/lib/python3.9/site-packages/urllib3/util/retry.py", line 519, in increment
+    raise MaxRetryError(_pool, url, reason) from reason  # type: ignore[arg-type]
+urllib3.exceptions.MaxRetryError: HTTPConnectionPool(host='localhost', port=8097): Max retries exceeded with url: /env/main (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x7efdac519790>: Failed to establish a new connection: [Errno 111] Connection refused'))
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/data/heedong/anaconda3/envs/change-captioning-baseline/lib/python3.9/site-packages/visdom/__init__.py", line 708, in _send
+    return self._handle_post(
+  File "/data/heedong/anaconda3/envs/change-captioning-baseline/lib/python3.9/site-packages/visdom/__init__.py", line 677, in _handle_post
+    r = self.session.post(url, data=data)
+  File "/data/heedong/anaconda3/envs/change-captioning-baseline/lib/python3.9/site-packages/requests/sessions.py", line 637, in post
+    return self.request("POST", url, data=data, json=json, **kwargs)
+  File "/data/heedong/anaconda3/envs/change-captioning-baseline/lib/python3.9/site-packages/requests/sessions.py", line 589, in request
+    resp = self.send(prep, **send_kwargs)
+  File "/data/heedong/anaconda3/envs/change-captioning-baseline/lib/python3.9/site-packages/requests/sessions.py", line 703, in send
+    r = adapter.send(request, **kwargs)
+  File "/data/heedong/anaconda3/envs/change-captioning-baseline/lib/python3.9/site-packages/requests/adapters.py", line 700, in send
+    raise ConnectionError(e, request=request)
+requests.exceptions.ConnectionError: HTTPConnectionPool(host='localhost', port=8097): Max retries exceeded with url: /env/main (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x7efdac519790>: Failed to establish a new connection: [Errno 111] Connection refused'))
+[Errno 111] Connection refused
+on_close() takes 1 positional argument but 3 were given
+/data/heedong/anaconda3/envs/change-captioning-baseline/lib/python3.9/site-packages/torch/utils/data/dataloader.py:474: UserWarning: This DataLoader will create 8 worker processes in total. Our suggested max number of worker in current system is 4, which is smaller than what this DataLoader is going to create. Please be aware that excessive worker creation might get DataLoader running slow or even freeze, lower the worker number to avoid potential slowness/freeze if necessary.
+  warnings.warn(_create_warning_msg(
+Traceback (most recent call last):
+  File "/data/heedong/DIRL_Capstone/train.py", line 159, in <module>
+    loss_pos, att_pos, ccr_loss = speaker._forward(diff_bef_pos, diff_aft_pos,
+  File "/data/heedong/DIRL_Capstone/models/CCR.py", line 218, in _forward
+    decoder_outputs, attention_weight, sim_loss = self.core(
+  File "/data/heedong/anaconda3/envs/change-captioning-baseline/lib/python3.9/site-packages/torch/nn/modules/module.py", line 889, in _call_impl
+    result = self.forward(*input, **kwargs)
+  File "/data/heedong/DIRL_Capstone/models/CCR.py", line 157, in forward
+    dec_hidden_states = self.position_enc(self.embed(seq))
+  File "/data/heedong/anaconda3/envs/change-captioning-baseline/lib/python3.9/site-packages/torch/nn/modules/module.py", line 889, in _call_impl
+    result = self.forward(*input, **kwargs)
+  File "/data/heedong/DIRL_Capstone/models/CCR.py", line 55, in forward
+    x = x + pe
+RuntimeError: The size of tensor a (42) must match the size of tensor b (40) at non-singleton dimension 1

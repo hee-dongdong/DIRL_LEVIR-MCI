@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "/data/heedong/DIRL_Capstone/test.py", line 88, in <module>
+    train_dataset, train_loader = create_dataset(cfg, 'train')
+  File "/data/heedong/DIRL_Capstone/data_loader/datasets.py", line 63, in create_dataset
+    dataset = RCCDataset(cfg, split)
+  File "/data/heedong/DIRL_Capstone/data_loader/rcc_dataset_transformer_dc.py", line 71, in __init__
+    if len(self.label_files) != 0 and len(self.label_files) != len(self.split_idxs):
+AttributeError: 'RCCDataset' object has no attribute 'split_idxs'

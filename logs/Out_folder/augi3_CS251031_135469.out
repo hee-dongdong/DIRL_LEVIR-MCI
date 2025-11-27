@@ -1,0 +1,96 @@
+Before changing directory:
+/data/heedong/DIRL_Capstone/server-scripts/251031
+After changing directory:
+/data/heedong/DIRL_Capstone
+/data/heedong/anaconda3/envs/change-captioning-baseline/bin/python
+augi3
+Loading checkpoint from ./experiments/DIRL+CCR/snapshots/DIRL+CCR_checkpoint_6000.pt
+DIRL(
+  (img): Sequential(
+    (0): Conv2d(1024, 512, kernel_size=(1, 1), stride=(1, 1))
+  )
+  (w_embedding): Embedding(14, 256)
+  (h_embedding): Embedding(14, 256)
+  (mlp): Sequential(
+    (0): Linear(in_features=512, out_features=2048, bias=True)
+    (1): ReLU()
+    (2): Dropout(p=0.1, inplace=False)
+    (3): Linear(in_features=2048, out_features=512, bias=True)
+  )
+  (transformer): ModuleList(
+    (0): CrossTransformer(
+      (attention): MultiheadAttention(
+        (out_proj): _LinearWithBias(in_features=512, out_features=512, bias=True)
+      )
+      (norm1): LayerNorm((512,), eps=1e-05, elementwise_affine=True)
+      (dropout1): Dropout(p=0.1, inplace=False)
+    )
+    (1): CrossTransformer(
+      (attention): MultiheadAttention(
+        (out_proj): _LinearWithBias(in_features=512, out_features=512, bias=True)
+      )
+      (norm1): LayerNorm((512,), eps=1e-05, elementwise_affine=True)
+      (dropout1): Dropout(p=0.1, inplace=False)
+    )
+  )
+)
+CCR(
+  (core): Core(
+    (embed): Embedding(860, 300, padding_idx=0)
+    (fc): Sequential(
+      (0): Linear(in_features=300, out_features=512, bias=True)
+      (1): LayerNorm((512,), eps=1e-05, elementwise_affine=True)
+      (2): Dropout(p=0.1, inplace=False)
+    )
+    (embed_fc): Sequential(
+      (0): Linear(in_features=1024, out_features=512, bias=True)
+      (1): LayerNorm((512,), eps=1e-05, elementwise_affine=True)
+      (2): Dropout(p=0.1, inplace=False)
+      (3): ReLU()
+    )
+    (position_enc): PositionEncoding()
+    (layer): ModuleList(
+      (0): CrossTransformer(
+        (self_att): MultiheadAttention(
+          (out_proj): _LinearWithBias(in_features=512, out_features=512, bias=True)
+        )
+        (cross_att): MultiheadAttention(
+          (out_proj): _LinearWithBias(in_features=512, out_features=512, bias=True)
+        )
+        (norm1): LayerNorm((512,), eps=1e-05, elementwise_affine=True)
+        (norm2): LayerNorm((512,), eps=1e-05, elementwise_affine=True)
+        (norm3): LayerNorm((512,), eps=1e-05, elementwise_affine=True)
+        (dropout1): Dropout(p=0.1, inplace=False)
+        (dropout2): Dropout(p=0.1, inplace=False)
+        (dropout3): Dropout(p=0.1, inplace=False)
+        (activation): ReLU()
+        (linear1): Linear(in_features=512, out_features=2048, bias=True)
+        (linear2): Linear(in_features=2048, out_features=512, bias=True)
+        (dropout): Dropout(p=0.1, inplace=False)
+      )
+      (1): CrossTransformer(
+        (self_att): MultiheadAttention(
+          (out_proj): _LinearWithBias(in_features=512, out_features=512, bias=True)
+        )
+        (cross_att): MultiheadAttention(
+          (out_proj): _LinearWithBias(in_features=512, out_features=512, bias=True)
+        )
+        (norm1): LayerNorm((512,), eps=1e-05, elementwise_affine=True)
+        (norm2): LayerNorm((512,), eps=1e-05, elementwise_affine=True)
+        (norm3): LayerNorm((512,), eps=1e-05, elementwise_affine=True)
+        (dropout1): Dropout(p=0.1, inplace=False)
+        (dropout2): Dropout(p=0.1, inplace=False)
+        (dropout3): Dropout(p=0.1, inplace=False)
+        (activation): ReLU()
+        (linear1): Linear(in_features=512, out_features=2048, bias=True)
+        (linear2): Linear(in_features=2048, out_features=512, bias=True)
+        (dropout): Dropout(p=0.1, inplace=False)
+      )
+    )
+  )
+  (logit): Linear(in_features=512, out_features=860, bias=True)
+  (loss_func): CrossEntropyLoss()
+)
+AddSpatialInfo()
+Speaker Dataset loading vocab json file:  /data/heedong/DIRL_Capstone/data_loader/LEVIR-MCI-dataset/images_flattened/annotations/transformer_vocab.json
+vocab size is  860

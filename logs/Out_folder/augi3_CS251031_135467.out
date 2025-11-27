@@ -1,0 +1,8 @@
+Before changing directory:
+/data/heedong/DIRL_Capstone/server-scripts/251031
+After changing directory:
+/data/heedong/DIRL_Capstone
+/data/heedong/anaconda3/envs/change-captioning-baseline/bin/python
+augi3
+Experiment: run2, Snapshot: 6000
+Loading checkpoint from ./experiments3/run2/snapshots/run2_checkpoint_6000.pt

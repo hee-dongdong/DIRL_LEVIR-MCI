@@ -9,9 +9,9 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 from configs.config_transformer import cfg, merge_cfg_from_file
-from datasets.datasets import create_dataset
+from data_loader.datasets import create_dataset
 from models.DIRL import DIRL, AddSpatialInfo
-from models.CCR import CCR
+from models.new_CCR import CCR
 
 from utils.utils import AverageMeter, accuracy, set_mode, load_checkpoint, \
                         decode_sequence, decode_sequence_transformer, coco_gen_format_save
@@ -45,7 +45,7 @@ exp_name = cfg.exp_name
 
 output_dir = os.path.join(exp_dir, exp_name)
 
-test_output_dir = os.path.join(output_dir, 'test_output')
+test_output_dir = os.path.join(output_dir, f'test_output_{args.snapshot}')
 if not os.path.exists(test_output_dir):
     os.makedirs(test_output_dir)
 caption_output_path = os.path.join(test_output_dir, 'captions', 'test')
@@ -99,7 +99,7 @@ with torch.no_grad():
     for i, batch in tqdm(enumerate(test_loader)):
 
         d_feats, sc_feats, \
-        labels, labels_with_ignore, masks, \
+        labels, labels_with_ignore, masks, aux_labels, \
         d_img_paths, sc_img_paths = batch
 
         val_batch_size = d_feats.size(0)
@@ -134,4 +134,3 @@ with torch.no_grad():
     result_save_path_pos = os.path.join(caption_output_path, 'sc_results.json')
 
     coco_gen_format_save(result_sents_pos, result_save_path_pos)
-

@@ -17,20 +17,20 @@ model:
         att_dim: 512
         att_head: 8
         att_layer: 2
-        vocab_size: 87
-        seq_length: 40
+        vocab_size: 860
+        seq_length: 42
         share_wd_cls_weight: False
         label_smoothing: 0.0
 
 data:
     dataset: 'rcc_dataset_transformer_dc'
-    vocab_json: './clevr_dc/transformer_vocab.json'
-    h5_label_file: './clevr_dc/transformer_labels.h5'
-    default_feature_dir: './clevr_dc/features'
-    semantic_feature_dir: './clevr_dc/sc_features'
-    default_img_dir: './clevr_dc/images'
-    semantic_img_dir: './clevr_dc/sc_images'
-    splits_json: './clevr_dc/splits.json'
+    vocab_json: '/data/heedong/DIRL_Capstone/data_loader/LEVIR-MCI-dataset/images_flattened/annotations/transformer_vocab.json'
+    h5_label_file: '/data/heedong/DIRL_Capstone/data_loader/LEVIR-MCI-dataset/images_flattened/annotations/transformer_labels.h5'
+    default_feature_dir: '/data/heedong/DIRL_Capstone/data_loader/LEVIR-MCI-dataset/images_flattened/before_feature'
+    semantic_feature_dir: '/data/heedong/DIRL_Capstone/data_loader/LEVIR-MCI-dataset/images_flattened/after_feature'
+    default_img_dir: '/data/heedong/DIRL_Capstone/data_loader/LEVIR-MCI-dataset/images_flattened/before'
+    semantic_img_dir: '/data/heedong/DIRL_Capstone/data_loader/LEVIR-MCI-dataset/images_flattened/after'
+    splits_json: '/data/heedong/DIRL_Capstone/data_loader/LEVIR-MCI-dataset/images_flattened/annotations/split.json'
     train:
         batch_size: 128
 train:

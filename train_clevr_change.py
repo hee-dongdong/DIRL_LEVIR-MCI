@@ -125,6 +125,7 @@ while t < cfg.train.max_iter:
     speaker_loss_avg = AverageMeter()
     dirl_loss_avg = AverageMeter()
     ccr_loss_avg = AverageMeter()
+    aux_loss_avg = AverageMeter()
     total_loss_avg = AverageMeter()
 
     if epoch > cfg.train.scheduled_sampling_start and cfg.train.scheduled_sampling_start >= 0:
@@ -162,11 +163,17 @@ while t < cfg.train.max_iter:
         diff_bef_pos, diff_aft_pos, dirl_pos = change_detector(d_feats, sc_feats)
         diff_bef_neg, diff_aft_neg, dirl_neg = change_detector(d_feats, nsc_feats)
 
-        loss_pos, att_pos, ccr_loss_pos = speaker._forward(diff_bef_pos, diff_aft_pos,
-                                              labels, masks, labels_with_ignore=labels_with_ignore)
+        loss_pos, att_pos, ccr_loss_pos, aux_loss_pos = speaker._forward(
+            diff_bef_pos, diff_aft_pos,
+            labels, masks,
+            labels_with_ignore=labels_with_ignore,
+            auxiliary_target=aux_labels_pos)
 
-        loss_neg, att_neg, ccr_loss_neg = speaker._forward(diff_bef_neg, diff_aft_neg,
-                                              no_chg_labels, no_chg_masks, labels_with_ignore=no_chg_labels_with_ignore)
+        loss_neg, att_neg, ccr_loss_neg, aux_loss_neg = speaker._forward(
+            diff_bef_neg, diff_aft_neg,
+            no_chg_labels, no_chg_masks,
+            labels_with_ignore=no_chg_labels_with_ignore,
+            auxiliary_target=aux_labels_neg)
 
 
         speaker_loss = 0.5 * loss_pos + 0.5 * loss_neg
@@ -178,13 +185,17 @@ while t < cfg.train.max_iter:
         ccr_loss = 0.5 * ccr_loss_pos + 0.5 * ccr_loss_neg
         ccr_loss_val = ccr_loss.item()
 
-        total_loss = speaker_loss + 0.5 * dirl_loss + 0.3 * ccr_loss
+        aux_loss = 0.5 * aux_loss_pos + 0.5 * aux_loss_neg
+        aux_loss_val = aux_loss.item()
+
+        total_loss = speaker_loss + 0.5 * dirl_loss + 0.3 * ccr_loss + 0.05 * aux_loss
 
         total_loss_val = total_loss.item()
 
         speaker_loss_avg.update(speaker_loss_val, 2 * batch_size)
         dirl_loss_avg.update(dirl_loss_val, 2 * batch_size)
         ccr_loss_avg.update(ccr_loss_val, 2 * batch_size)
+        aux_loss_avg.update(aux_loss_val, 2 * batch_size)
         total_loss_avg.update(total_loss_val, 2 * batch_size)
 
         stats = {}
@@ -195,6 +206,8 @@ while t < cfg.train.max_iter:
         stats['avg_dirl_loss'] = dirl_loss_avg.avg
         stats['ccr_loss'] = ccr_loss_val
         stats['avg_ccr_loss'] = ccr_loss_avg.avg
+        stats['aux_loss'] = aux_loss_val
+        stats['avg_aux_loss'] = aux_loss_avg.avg
         stats['total_loss'] = total_loss_val
         stats['avg_total_loss'] = total_loss_avg.avg
 

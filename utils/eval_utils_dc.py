@@ -190,7 +190,7 @@ def coverage(gen_mapping, gt_mapping, type_ids=None):
 
 
 if __name__ == '__main__':
-    anno_path = '/clevr_dc/change_captions.json'
+    anno_path = '/data/heedong/DIRL_Capstone/data_loader/LEVIR-MCI-dataset/images_flattened/annotations/change_captions.json'
     coco_gt_format_save(anno_path)
 
 
