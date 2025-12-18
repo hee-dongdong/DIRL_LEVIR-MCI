@@ -1,4 +1,4 @@
-# DIRL + Auxiliary Segmentation for Remote Sensing Change Captioning
+# [소프트웨어융합학과 캡스톤디자인] DIRL 모델 기반의 Distractor-Immune Remote Sensing Change Captioning
 
 ## Project Summary
 - Goal: generate natural-language change captions from satellite image pairs while remaining robust to distractors such as illumination, seasonal shifts, and viewpoint differences.
