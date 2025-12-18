@@ -1,4 +1,4 @@
-exp_name: 'DIRL+CCR_levir'
+exp_name: 'DIRL+CCR_levir_251212_2'
 gpu_id: [0]
 logger:
     display_id: 9908
@@ -24,13 +24,13 @@ model:
 
 data:
     dataset: 'rcc_dataset_transformer_dc'
-    vocab_json: '/data/heedong/DIRL_Capstone/data_loader/LEVIR-MCI-dataset/images_flattened/annotations/transformer_vocab.json'
-    h5_label_file: '/data/heedong/DIRL_Capstone/data_loader/LEVIR-MCI-dataset/images_flattened/annotations/transformer_labels.h5'
-    default_feature_dir: '/data/heedong/DIRL_Capstone/data_loader/LEVIR-MCI-dataset/images_flattened/before_feature'
-    semantic_feature_dir: '/data/heedong/DIRL_Capstone/data_loader/LEVIR-MCI-dataset/images_flattened/after_feature'
-    default_img_dir: '/data/heedong/DIRL_Capstone/data_loader/LEVIR-MCI-dataset/images_flattened/before'
-    semantic_img_dir: '/data/heedong/DIRL_Capstone/data_loader/LEVIR-MCI-dataset/images_flattened/after'
-    splits_json: '/data/heedong/DIRL_Capstone/data_loader/LEVIR-MCI-dataset/images_flattened/annotations/split.json'
+    vocab_json: '/data/inseong/skrr/DIRL_Capstone/data_loader/LEVIR-MCI-dataset/images_flattened/annotations/transformer_vocab.json'
+    h5_label_file: '/data/inseong/skrr/DIRL_Capstone/data_loader/LEVIR-MCI-dataset/images_flattened/annotations/transformer_labels.h5'
+    default_feature_dir: '/data/inseong/skrr/DIRL_Capstone/data_loader/LEVIR-MCI-dataset/images_flattened/before_feature'
+    semantic_feature_dir: '/data/inseong/skrr/DIRL_Capstone/data_loader/LEVIR-MCI-dataset/images_flattened/after_feature'
+    default_img_dir: '/data/inseong/skrr/DIRL_Capstone/data_loader/LEVIR-MCI-dataset/images_flattened/before'
+    semantic_img_dir: '/data/inseong/skrr/DIRL_Capstone/data_loader/LEVIR-MCI-dataset/images_flattened/after'
+    splits_json: '/data/inseong/skrr/DIRL_Capstone/data_loader/LEVIR-MCI-dataset/images_flattened/annotations/split.json'
     train:
         batch_size: 128
 train:

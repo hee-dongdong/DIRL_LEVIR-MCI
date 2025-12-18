@@ -173,7 +173,24 @@ class RCCDataset(Dataset):
         aux_label = None
         if self.label_files:
             label_path = self.label_files[index]
-            aux_label = torch.from_numpy(np.asarray(Image.open(label_path).convert('RGB'), dtype=np.float32)).permute(2, 0, 1)
+            # Load as RGB
+            aux_label_pil = Image.open(label_path).convert('RGB')
+            aux_label_np = np.array(aux_label_pil)
+            
+            # Create empty mask (Background=0)
+            aux_label = torch.zeros((aux_label_np.shape[0], aux_label_np.shape[1]), dtype=torch.long)
+            
+            # Map colors to indices
+            # (255, 0, 0) -> 1
+            mask_1 = (aux_label_np[:, :, 0] == 255) & (aux_label_np[:, :, 1] == 0) & (aux_label_np[:, :, 2] == 0)
+            aux_label[mask_1] = 1
+            
+            # (255, 255, 0) -> 2
+            mask_2 = (aux_label_np[:, :, 0] == 255) & (aux_label_np[:, :, 1] == 255) & (aux_label_np[:, :, 2] == 0)
+            aux_label[mask_2] = 2
+            
+            # Add more mappings if needed based on dataset specs
+
 
         return (d_feature, q_feature,
                 seq, labels_with_ignore, mask, aux_label,

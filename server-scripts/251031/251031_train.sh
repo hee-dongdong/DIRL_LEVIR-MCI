@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH -J CS251031
+#SBATCH -J CS251212
 #SBATCH --gres=gpu:1
 #SBATCH --cpus-per-gpu=4
 #SBATCH --mem-per-gpu=32G
@@ -28,22 +28,25 @@ hostname
 # ------------------------------------
 
 
-source /data/heedong/anaconda3/etc/profile.d/conda.sh
+source /data/inseong/anaconda3/etc/profile.d/conda.sh
 conda activate change-captioning-baseline
 
-#
+python /data/inseong/skrr/DIRL_Capstone/train.py \
+    --cfg /data/inseong/skrr/DIRL_Capstone/configs/dynamic/transformer_levir.yaml
 
-for snapshot in $(seq 6000 1000 13000); do
+
+for snapshot in $(seq 7000 1000 7000); do
     # Test after training
-    python /data/heedong/DIRL_Capstone/test.py \
-    --cfg /data/heedong/DIRL_Capstone/configs/dynamic/transformer_levir.yaml \
-    --snapshot $snapshot
+    python /data/inseong/skrr/DIRL_Capstone/test.py \
+    --cfg /data/inseong/skrr/DIRL_Capstone/configs/dynamic/transformer_levir.yaml \
+    --snapshot $snapshot \
+    --save_masks
 
-    results_dir="/data/heedong/DIRL_Capstone/experiments/DIRL+CCR_levir/test_output_${snapshot}/captions"
+    results_dir="/data/inseong/skrr/DIRL_Capstone/experiments/DIRL+CCR_levir_251212_2/test_output_${snapshot}/captions"
 
     python evaluate_dc.py \
     --results_dir $results_dir \
-    --anno /data/heedong/DIRL_Capstone/data_loader/LEVIR-MCI-dataset/images_flattened/annotations/change_captions_reformat.json
+    --anno /data/inseong/skrr/DIRL_Capstone/data_loader/LEVIR-MCI-dataset/images_flattened/annotations/change_captions_reformat.json
 
 done
 # ---------실제 작업 종료-----------------

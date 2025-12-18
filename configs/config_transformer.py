@@ -71,6 +71,12 @@ __C.model.transformer_decoder.sample_max = 0 # whether to be greedy or sample fr
 __C.model.transformer_decoder.temperature = 1.0
 __C.model.transformer_decoder.start_from = 'None'
 
+# Auxiliary Module (Ablation Settings)
+__C.model.auxiliary = AttrDict()
+__C.model.auxiliary.use_skip_connection = False  # Self-skip connection in aux decoder
+__C.model.auxiliary.use_mask_in_decoder = False  # Mask cross-attention layer in decoder
+__C.model.auxiliary.num_blocks = 5  # Number of decoder blocks (each block ~doubles resolution)
+
 # Localization
 __C.model.localization = AttrDict()
 __C.model.localization.input_dim = 2048

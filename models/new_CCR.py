@@ -16,6 +16,34 @@ def gelu(x):
     """
     return x * 0.5 * (1.0 + torch.erf(x / math.sqrt(2.0)))
 
+
+class LMPredictionHead(nn.Module):
+    """
+    Language Model Prediction Head that shares weights with word embeddings.
+    """
+    def __init__(self, cfg, embed_weight):
+        super().__init__()
+        self.hidden_size = cfg.model.transformer_decoder.att_dim
+        self.vocab_size = cfg.model.transformer_decoder.vocab_size
+        
+        # Transform hidden states
+        self.transform = nn.Sequential(
+            nn.Linear(self.hidden_size, self.hidden_size),
+            nn.LayerNorm(self.hidden_size),
+        )
+        
+        # Tied weight for output projection
+        self.decoder = nn.Linear(embed_weight.size(1), embed_weight.size(0), bias=False)
+        self.decoder.weight = embed_weight
+        self.bias = nn.Parameter(torch.zeros(self.vocab_size))
+    
+    def forward(self, hidden_states):
+        hidden_states = self.transform(hidden_states)
+        hidden_states = gelu(hidden_states)
+        hidden_states = self.decoder(hidden_states) + self.bias
+        return hidden_states
+
+
 class PositionEncoding(nn.Module):
     """
     Add positional information to input tensor.
@@ -110,6 +138,183 @@ class CrossTransformer(nn.Module):
         return output, cross_weight, sim_loss
 
 
+class AuxiliaryDecoderWithSkip(nn.Module):
+    """
+    Auxiliary Decoder with skip connections from original input feature.
+    The original input (x) is passed as a skip connection to each Block.
+    Number of blocks is configurable via num_blocks parameter.
+    
+    Input: (B, hidden_size, 14, 14)
+    Output: (B, num_classes, 256, 256)
+    """
+    def __init__(self, hidden_size, num_classes=3, num_blocks=4):
+        super().__init__()
+        
+        self.hidden_size = hidden_size
+        self.num_blocks = num_blocks
+        self.input_size = 14
+        self.output_size = 256
+        
+        # Calculate intermediate sizes for each block
+        # We need to go from 14 -> 256, with num_blocks upsampling steps + final resize
+        # Each block doubles the size, then final block resizes to 256
+        self.sizes = self._compute_sizes()
+        
+        # Channel progression: start from hidden_size, decrease by half each block
+        # Minimum channel size is 32
+        self.channels = self._compute_channels()
+        
+        # Build blocks dynamically
+        self.skip_adapters = nn.ModuleList()
+        self.convs = nn.ModuleList()
+        self.bns = nn.ModuleList()
+        
+        for i in range(num_blocks):
+            # Input channels for this block
+            if i == 0:
+                in_channels = hidden_size
+            else:
+                in_channels = self.channels[i - 1]
+            
+            out_channels = self.channels[i]
+            skip_channels = out_channels  # Skip adapter outputs same as block output
+            
+            # Skip adapter: adapts original input to this block's channel
+            self.skip_adapters.append(nn.Sequential(
+                nn.Conv2d(hidden_size, skip_channels, kernel_size=1),
+                nn.BatchNorm2d(skip_channels)
+            ))
+            
+            # Conv block: input is previous output + skip
+            self.convs.append(nn.Conv2d(in_channels + skip_channels, out_channels, kernel_size=3, padding=1))
+            self.bns.append(nn.BatchNorm2d(out_channels))
+        
+        # Final conv (no skip connection at final stage to save memory)
+        self.conv_final = nn.Conv2d(self.channels[-1], num_classes, kernel_size=1)
+        
+        self.relu = nn.ReLU(inplace=True)
+    
+    def _compute_sizes(self):
+        """Compute intermediate spatial sizes for each block."""
+        sizes = []
+        current_size = self.input_size
+        for i in range(self.num_blocks):
+            current_size = current_size * 2
+            sizes.append(current_size)
+        return sizes
+    
+    def _compute_channels(self):
+        """Compute channel sizes for each block. Decreases by half each block, min 32."""
+        channels = []
+        current_channels = 256  # Start with 256 channels
+        for i in range(self.num_blocks):
+            channels.append(current_channels)
+            current_channels = max(32, current_channels // 2)
+        return channels
+    
+    def forward(self, x):
+        # x: (B, hidden_size, 14, 14) - original input feature
+        x_orig = x  # Save original input for skip connections
+        out = x
+        
+        for i in range(self.num_blocks):
+            target_size = self.sizes[i]
+            
+            # Compute skip connection from original input
+            if i == 0:
+                # First block: no need to upsample original input
+                skip = self.skip_adapters[i](x_orig)
+            else:
+                # Upsample original input to match current resolution
+                skip = F.interpolate(x_orig, size=(target_size // 2, target_size // 2), 
+                                    mode='bilinear', align_corners=True)
+                skip = self.skip_adapters[i](skip)
+            
+            # Concatenate with skip connection
+            out = torch.cat([out, skip], dim=1)
+            
+            # Conv -> BN -> ReLU
+            out = self.relu(self.bns[i](self.convs[i](out)))
+            
+            # Upsample
+            out = F.interpolate(out, size=(target_size, target_size), 
+                               mode='bilinear', align_corners=True)
+        
+        # Final: resize to output_size (256x256) without skip connection (memory saving)
+        out = F.interpolate(out, size=(self.output_size, self.output_size), 
+                           mode='bilinear', align_corners=True)
+        
+        out = self.conv_final(out)  # (B, num_classes, 256, 256)
+        
+        return out
+
+
+class MaskCrossAttention(nn.Module):
+    """
+    Cross-attention layer that uses predicted mask as Key and Value.
+    Encodes the mask and applies cross-attention with text query.
+    """
+    def __init__(self, d_model=512, n_head=8, dropout=0.1):
+        super().__init__()
+        
+        # Mask encoder: (B, 3, 256, 256) -> (B, 196, d_model)
+        self.mask_encoder = nn.Sequential(
+            nn.Conv2d(3, 64, kernel_size=7, stride=2, padding=3),  # 256 -> 128
+            nn.BatchNorm2d(64),
+            nn.ReLU(inplace=True),
+            nn.Conv2d(64, 128, kernel_size=3, stride=2, padding=1),  # 128 -> 64
+            nn.BatchNorm2d(128),
+            nn.ReLU(inplace=True),
+            nn.Conv2d(128, 256, kernel_size=3, stride=2, padding=1),  # 64 -> 32
+            nn.BatchNorm2d(256),
+            nn.ReLU(inplace=True),
+            nn.Conv2d(256, d_model, kernel_size=3, stride=2, padding=1),  # 32 -> 16
+            nn.BatchNorm2d(d_model),
+            nn.ReLU(inplace=True),
+            nn.AdaptiveAvgPool2d((14, 14)),  # -> 14x14
+        )
+        
+        # Cross-attention with mask
+        self.cross_att = nn.MultiheadAttention(d_model, n_head, dropout=dropout)
+        self.norm = nn.LayerNorm(d_model)
+        self.dropout = nn.Dropout(dropout)
+        
+        # FFN
+        self.ffn = nn.Sequential(
+            nn.Linear(d_model, d_model * 4),
+            nn.ReLU(),
+            nn.Dropout(dropout),
+            nn.Linear(d_model * 4, d_model),
+        )
+        self.norm2 = nn.LayerNorm(d_model)
+        self.dropout2 = nn.Dropout(dropout)
+    
+    def forward(self, query, mask_logits):
+        """
+        Args:
+            query: (L, B, D) - text hidden states from previous layer
+            mask_logits: (B, 3, 256, 256) - predicted mask logits
+            
+        Returns:
+            output: (L, B, D) - attended output
+        """
+        # Encode mask
+        mask_features = self.mask_encoder(mask_logits)  # (B, D, 14, 14)
+        B, D, H, W = mask_features.shape
+        mask_features = mask_features.view(B, D, -1).permute(2, 0, 1)  # (196, B, D)
+        
+        # Cross-attention: query attends to mask features
+        attn_output, _ = self.cross_att(query, mask_features, mask_features)
+        output = query + self.dropout(attn_output)
+        output = self.norm(output)
+        
+        # FFN
+        ffn_output = self.ffn(output)
+        output = output + self.dropout2(ffn_output)
+        output = self.norm2(output)
+        
+        return output
+
 class Core(nn.Module):
     def __init__(self, cfg):
         super().__init__()
@@ -135,14 +340,45 @@ class Core(nn.Module):
         self.position_enc = PositionEncoding(n_filters=self.word_embed_size,
                                                     max_len=cfg.model.transformer_decoder.seq_length)
 
-        self.aux_decoder = nn.Sequential(
-            nn.Conv2d(self.hidden_size, self.hidden_size, kernel_size=3, padding=1),
-            nn.BatchNorm2d(self.hidden_size),
-            nn.ReLU(inplace=True),
-            nn.Conv2d(self.hidden_size, self.hidden_size // 2, kernel_size=1),
-            nn.ConvTranspose2d(self.hidden_size // 2, 3, kernel_size=18, stride=18, padding=1, output_padding=6)
-        )
-        self.aux_loss_fn = nn.L1Loss()
+        # Ablation settings
+        self.use_skip_connection = cfg.model.auxiliary.use_skip_connection
+        self.use_mask_in_decoder = cfg.model.auxiliary.use_mask_in_decoder
+        self.num_blocks = getattr(cfg.model.auxiliary, 'num_blocks', 5)  # Default to 5 blocks
+
+        # Auxiliary decoder (conditional based on config)
+        if self.use_skip_connection:
+            self.aux_decoder = AuxiliaryDecoderWithSkip(self.hidden_size, num_classes=3, num_blocks=self.num_blocks)
+        else:
+            self.aux_decoder = nn.Sequential(
+                # 14 -> 28
+                nn.Conv2d(self.hidden_size, 256, kernel_size=3, padding=1),
+                nn.BatchNorm2d(256),
+                nn.ReLU(inplace=True),
+                nn.Upsample(scale_factor=2, mode='bilinear', align_corners=True),
+                # 28 -> 56
+                nn.Conv2d(256, 128, kernel_size=3, padding=1),
+                nn.BatchNorm2d(128),
+                nn.ReLU(inplace=True),
+                nn.Upsample(scale_factor=2, mode='bilinear', align_corners=True),
+                # 56 -> 112
+                nn.Conv2d(128, 64, kernel_size=3, padding=1),
+                nn.BatchNorm2d(64),
+                nn.ReLU(inplace=True),
+                nn.Upsample(scale_factor=2, mode='bilinear', align_corners=True),
+                # 112 -> 224
+                nn.Conv2d(64, 32, kernel_size=3, padding=1),
+                nn.BatchNorm2d(32),
+                nn.ReLU(inplace=True),
+                nn.Upsample(scale_factor=2, mode='bilinear', align_corners=True),
+                # 224 -> 256
+                nn.Upsample(size=(256, 256), mode='bilinear', align_corners=True),
+                nn.Conv2d(32, 3, kernel_size=1) # 3 classes: background, class1, class2
+            )
+        self.aux_loss_fn = nn.CrossEntropyLoss(ignore_index=-1)
+
+        # Mask cross-attention layer (optional)
+        if self.use_mask_in_decoder:
+            self.mask_cross_attention = MaskCrossAttention(self.hidden_size, self.n_head)
 
         self.num_hidden_layers = cfg.model.transformer_decoder.att_layer
         self.layer = nn.ModuleList([CrossTransformer(self.hidden_size, self.n_head)
@@ -168,7 +404,8 @@ class Core(nn.Module):
         enc_outputs = torch.cat([diff_bef, diff_aft], -1)
         enc_outputs = self.embed_fc(enc_outputs)
 
-        aux_loss = self._compute_auxiliary_loss(enc_outputs, auxiliary_target)
+        # Compute auxiliary mask prediction and loss
+        aux_loss, aux_pred = self._compute_auxiliary_loss(enc_outputs, auxiliary_target)
 
         enc_outputs = enc_outputs.transpose(0, 1)
 
@@ -182,6 +419,11 @@ class Core(nn.Module):
                 all_encoder_layers.append(dec_hidden_states)
                 all_att_vis.append(attention_weight)
                 all_sim_loss.append(sim_loss)
+        
+        # Apply mask cross-attention if enabled and aux_pred is available
+        if self.use_mask_in_decoder and aux_pred is not None:
+            dec_hidden_states = self.mask_cross_attention(dec_hidden_states, aux_pred)
+        
         if not output_all_encoded_layers:
             all_encoder_layers.append(dec_hidden_states)
             all_att_vis.append(attention_weight)
@@ -189,31 +431,33 @@ class Core(nn.Module):
         return all_encoder_layers[-1].transpose(0, 1), all_att_vis[-1], all_sim_loss[-1], aux_loss
 
     def _compute_auxiliary_loss(self, enc_outputs, auxiliary_target):
-        if auxiliary_target is None:
-            return enc_outputs.new_tensor(0.0)
-
+        """
+        Compute auxiliary segmentation loss and return predicted mask.
+        
+        Returns:
+            aux_loss: segmentation loss
+            aux_pred: predicted mask logits (B, 3, 256, 256) or None if no target
+        """
         batch_size, num_tokens, hidden_dim = enc_outputs.shape
         spatial_size = int(round(math.sqrt(num_tokens)))
         if spatial_size * spatial_size != num_tokens:
             raise ValueError("Number of tokens does not form a square spatial map.")
 
         spatial_features = enc_outputs.view(batch_size, spatial_size, spatial_size, hidden_dim).permute(0, 3, 1, 2)
-        aux_pred = torch.sigmoid(self.aux_decoder(spatial_features))
+        aux_pred = self.aux_decoder(spatial_features) # (B, 3, 256, 256)
 
-        target = auxiliary_target.to(enc_outputs.device).float()
-        if target.dim() == 4 and target.size(-1) in (1, 3) and target.size(1) not in (1, 3):
-            target = target.permute(0, 3, 1, 2)
-        if target.dim() == 3:
-            target = target.unsqueeze(1)
-        if target.max() > 1.0:
-            target = target / 255.0
-        if target.size(1) == 1 and aux_pred.size(1) == 3:
-            target = target.repeat(1, aux_pred.size(1), 1, 1)
+        if auxiliary_target is None:
+            return enc_outputs.new_tensor(0.0), aux_pred
+
+        target = auxiliary_target.to(enc_outputs.device).long() # (B, H, W)
+
+        # Ensure target matches output size if not already
         if target.shape[-2:] != aux_pred.shape[-2:]:
-            target = F.interpolate(target, size=aux_pred.shape[-2:], mode='bilinear', align_corners=False)
+             # Nearest neighbor for masks
+            target = F.interpolate(target.unsqueeze(1).float(), size=aux_pred.shape[-2:], mode='nearest').squeeze(1).long()
 
         aux_loss = self.aux_loss_fn(aux_pred, target)
-        return aux_loss
+        return aux_loss, aux_pred
 
 
 
@@ -307,3 +551,27 @@ class CCR(nn.Module):
             if unfinished.sum() == 0:
                 break
         return text_input_ids, attention_weight
+
+    def get_auxiliary_mask(self, diff_bef, diff_aft):
+        """
+        Get the predicted auxiliary mask from the auxiliary decoder.
+        
+        Args:
+            diff_bef: difference features before (B, N, D)
+            diff_aft: difference features after (B, N, D)
+            
+        Returns:
+            aux_pred: predicted mask logits (B, num_classes, H, W)
+            aux_pred_class: predicted class indices (B, H, W)
+        """
+        enc_outputs = torch.cat([diff_bef, diff_aft], -1)
+        enc_outputs = self.core.embed_fc(enc_outputs)
+        
+        batch_size, num_tokens, hidden_dim = enc_outputs.shape
+        spatial_size = int(round(math.sqrt(num_tokens)))
+        
+        spatial_features = enc_outputs.view(batch_size, spatial_size, spatial_size, hidden_dim).permute(0, 3, 1, 2)
+        aux_pred = self.core.aux_decoder(spatial_features)  # (B, 3, 256, 256)
+        aux_pred_class = aux_pred.argmax(dim=1)  # (B, 256, 256)
+        
+        return aux_pred, aux_pred_class

@@ -1,2 +1,9 @@
 experiments
 experiments3
+logs
+data_loader/LEVIR-MCI
+data_loader/LEVIR-MCI-augi5
+data_loader/LEVIR-MCI-dataset
+**/__pycache__/**
+server-scripts/251031
+server-scripts/251218

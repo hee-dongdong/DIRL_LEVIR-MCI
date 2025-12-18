@@ -1,112 +1,70 @@
-# Distractors-Immune Representation Learning with Cross-modal Contrastive Regularization for Change Captioning
-This package contains the accompanying code for the following paper:
+# DIRL + Auxiliary Segmentation for Remote Sensing Change Captioning
 
-Tu, Yunbin, et al. ["Distractors-Immune Representation Learning with Cross-modal Contrastive Regularization for Change Captioning"](https://www.ecva.net/papers/eccv_2024/papers_ECCV/papers/05989.pdf), which has appeared as a regular paper in ECCV 2024. The arxiv version is [here.](https://arxiv.org/pdf/2407.11683)
+## Project Summary
+- Goal: generate natural-language change captions from satellite image pairs while remaining robust to distractors such as illumination, seasonal shifts, and viewpoint differences.
+- Approach: start from the Distractors-Immune Representation Learning (DIRL) backbone and add an auxiliary segmentation head that consumes LEVIR-MCI change masks. The head uses a U-Net style decoder with skip connections to recover pixel-level change shapes, and its loss (weight 0.05) is added to the captioning objective.
+- Data: LEVIR-MCI (10,077 image pairs, 50,385 captions) with binary change masks; masks use background=0, red=(255,0,0) -> class 1, yellow=(255,255,0) -> class 2.
+- Training setup: Adam (lr 2e-4), batch size 128, max_iter 13,000 (~241 epochs) on GPU. Checkpoints and logs are written under `./experiments/<exp_name>/`.
+- Results (LEVIR-MCI): the auxiliary head improves most caption metrics over the DIRL baseline.
 
-## Upadte
-2025.7.11
+| Metric  | DIRL | DIRL + Aux (Ours) |
+|---------|------|-------------------|
+| BLEU-4  | 57.17| 58.39 |
+| METEOR  | 39.13| 39.19 |
+| ROUGE-L | 73.87| 73.93 |
+| CIDEr   |133.34|133.39 |
+| SPICE   |32.18 |31.41 |
 
-The training and testing code, data and checkpoint files for spot-the-diff dataset have been uploaded in  the baidu drive [dirl_spot](https://pan.baidu.com/s/19uWNwM_2dA2kRXP7EOBNaA?pwd=dirl), where the extration code is dirl 
+Github (code origin): https://github.com/hee-dongdong/DIRL_LEVIR-MCI.git
 
-The training and testing code files for CLEVR-Change dataset have been uploaded. The data files and checkpoint file are in  the baidu drive [dirl_clevr_change](https://pan.baidu.com/s/1WolB0B2rbV377I1B2hzlwA?pwd=dirl), where the extration code is dirl 
+## Code instruction
 
-## We illustrate the training and testing details as follows:
+### Environment
+- Python 3.8+ with CUDA GPU recommended. Core dependencies include PyTorch 1.8.0+cu111, torchvision 0.9.0, transformers 4.39.3, allennlp 2.3.0, faiss-gpu 1.7.2, pycocotools/pycocoevalcap, h5py, and matplotlib.
+- `requirements.txt` is a pip list snapshot; drop the first two header lines (starting with `Package` and dashes) before running `pip install -r requirements.txt`, or manually install the pinned versions listed there.
+- Example setup:
+  ```bash
+  python -m venv .venv
+  source .venv/bin/activate
+  pip install --upgrade pip
+  # edit requirements.txt to remove the header lines, then:
+  pip install -r requirements.txt
+  ```
 
-## Installation
+### Data preparation
+- Target dataset: LEVIR-MCI with change captions and binary segmentation masks.
+- Expected layout (as referenced in `configs/dynamic/transformer_levir.yaml`):
+  - `data_loader/LEVIR-MCI-dataset/images_flattened/{before,after}` and corresponding `{before_feature,after_feature}` `.npy` feature folders.
+  - `data_loader/LEVIR-MCI-dataset/images_flattened/annotations/{transformer_vocab.json, transformer_labels.h5, split.json}`.
+  - Auxiliary masks at `data_loader/LEVIR-MCI-dataset/images/{train,val,test}/label_rgb/*.png` using the color mapping noted above.
+- The repo currently points to an absolute path (`/data/inseong/skrr/DIRL_Capstone/...`); update the paths inside `configs/dynamic/transformer_levir*.yaml` to match your dataset location or adjust the symlink under `data_loader/`.
+- Experiment outputs default to `./experiments`; change `exp_dir` in `configs/config_transformer.py` if you prefer a different location.
 
-1. Make virtual environment with miniconda (`conda create -n card python=3.8`)
-2. Install requirements (`pip install -r requirements.txt`)
-3. Setup COCO caption eval tools ([github](https://github.com/tylin/coco-caption)) (Since the repo only supports Python 2.7, either create a separate virtual environment with Python 2.7 or modify the code to be compatible with Python 3.5).
+### Training
+- Single-GPU training example (adjust `gpu_id` in the YAML if needed):
+  ```bash
+  python train.py --cfg configs/dynamic/transformer_levir.yaml
+  ```
+- Snapshots: `experiments/<exp_name>/snapshots/<exp_name>_checkpoint_<iter>.pt`.
+- Validation captions during training are saved to `experiments/<exp_name>/eval_sents/<exp_name>_sents_<iter>/sc_results.json`.
+- Loss composition in `train.py`: `total = speaker_loss + 0.03*dirl_loss + 0.05*ccr_loss + 0.05*aux_loss` with gradient clipping controlled by `train.grad_clip`.
 
-## Data
-1. Download image data from here: [viewpoint-agnostic change captioning with cycle consistency (ICCV'21)](https://github.com/hsgkim/clevr-dc)
-2. You need to split them as bef-change images and aft-change images, and put two kinds of images into two directories, namely `images` and `sc_images`. 
-I have also uploaded my downloaded images into the baidu drive [clevr-dc.zip](https://pan.baidu.com/s/1VK6dH7BQ7rYaIVYOYLVZGg?pwd=dc24), where the extraction code is `dc24`.
-3. After obtaining the image pairs and captions, you should rename them first by using the following commands:
-```
-# rename image pairs 
-python pad_img.py
+### Inference and evaluation
+- Generate captions (and optional mask visualizations) from a saved checkpoint:
+  ```bash
+  python test.py --cfg configs/dynamic/transformer_levir.yaml --snapshot 13000 --save_masks --num_mask_samples 50
+  ```
+  Outputs live in `experiments/<exp_name>/test_output_<snapshot>/`, including `captions/sc_results.json`, attention maps, and `predicted_masks/` when `--save_masks` is set.
+- To score generated captions against the ground-truth annotations, use `evaluate.py` or `utils.eval_utils.score_generation` with the same annotation files referenced in your config. `evaluate.py` expects a directory that contains the generated `sc_results.json` (and optionally `nsc_results.json`), plus the dataset `anno` and a `type_file` describing change types.
 
-# rename captions
-python rename_dc_caption.py
-```   
+## Demo
+- Minimal dry-run using an existing checkpoint:
+  1. Prepare the LEVIR-MCI data in the expected layout and update the config paths.
+  2. Activate your environment and ensure the required packages are installed.
+  3. Run `python test.py --cfg configs/dynamic/transformer_levir.yaml --snapshot <iter> --save_masks --visualize`.
+  4. Inspect outputs under `experiments/<exp_name>/test_output_<iter>/` (captions, attention visualizations, and predicted masks colored red/yellow for buildings/roads).
 
-
-5. Preprocess data
-
- Extract visual features using ImageNet pretrained ResNet-101:
-```
-# processing default images
-``
-python scripts/extract_features.py --input_image_dir ./clevr_dc/images --output_dir ./clevr_dc/features --batch_size 128
-
-# processing semantically changes images
-python scripts/extract_features.py --input_image_dir ./clevr_dc/sc_images --output_dir ./clevr_dc/sc_features --batch_size 128
-
-
-* Build vocab and label files using caption annotations.
-``
-python scripts/preprocess_captions_dc.py
-```
-
-## Training
-To train the proposed method, run the following commands:
-```
-# create a directory or a symlink to save the experiments logs/snapshots etc.
-mkdir experiments
-# OR
-ln -s $PATH_TO_DIR$ experiments
-
-# this will start the visdom server for logging
-# start the server on a tmux session since the server needs to be up during training
-python -m visdom.server
-
-# start training
-python train.py --cfg configs/dynamic/transformer_dc.yaml
-```
-
-## Testing/Inference
-To test/run inference on the test dataset, run the following command
-```
-python test.py --cfg configs/dynamic/transformer_dc.yaml --snapshot 12000 --gpu 1
-```
-The command above will take the model snapshot at 12000th iteration and run inference using GPU ID 1.
-
-## Evaluation
-* Caption evaluation
-
-To evaluate captions, we need to first reformat the caption annotations into COCO eval tool format (only need to run this once). After setting up the COCO caption eval tools ([github](https://github.com/tylin/coco-caption)), make sure to modify `utils/eval_utils.py` so that the `COCO_PATH` variable points to the COCO eval tool repository. Then, run the following command:
-```
-python utils/eval_utils_dc.py
-```
-
-After the format is ready, run the following command to run evaluation:
-```
-# This will run evaluation on the results generated from the validation set and print the best results
-python evaluate_dc.py --results_dir ./experiments/DIRL+CCR/eval_sents --anno ./clevr_dc/change_captions_reformat.json 
-```
-
-Once the best model is found on the validation set, you can run inference on test set:
-```
-python evaluate_dc.py --results_dir ./experiments/DIRL+CCR/test_output/captions --anno ./clevr_dc/change_captions_reformat.json 
-```
-The results are saved in `./experiments/DIRL+CCR/test_output/captions/eval_results.txt`
-
-If you find this helps your research, please consider citing:
-```
-@inproceedings{tu2024distractors,
-  title={Distractors-Immune Representation Learning with Cross-modal Contrastive Regularization for Change Captioning},
-  author={Tu, Yunbin and Li, Liang and Su, Li and Yan, Chenggang and Huang, Qingming},
-  booktitle={ECCV},
-  pages={311--328},
-  year={2024},
-}
-```
-
-## Contact
-My email is tuyunbin1995@foxmail.com
-
-Any discussions and suggestions are welcome!
-
-
-
+## Conclusion and Future Work
+- The auxiliary segmentation head strengthens visual grounding and improves BLEU-4/METEOR/ROUGE-L/CIDEr compared to the DIRL baseline on LEVIR-MCI, demonstrating positive transfer from mask prediction to caption quality.
+- Limitations: SPICE lags the baseline, and results do not yet surpass the latest SOTA models such as Chg2Cap. Performance also depends on the quality of pre-extracted features and mask labels.
+- Future directions: try stronger backbones or vision transformers for feature extraction, tune auxiliary loss weighting or multi-task schedules, add data augmentation to cover illumination/viewpoint distractors, and explore more detailed mask semantics beyond the current binary change classes.
